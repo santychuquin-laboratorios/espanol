@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lector de Inglés Inteligente</title>
+    <!-- Google Fonts para mejor tipografía -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Importar PDF.js y su CSS oficial para alinear el texto perfectamente -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf_viewer.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            <span>Read & Learn</span>
+        </div>
+
+        <!-- Instrucciones en el centro de la barra -->
+        <div class="nav-instructions">
+            <span><strong>1.</strong> Sube tu PDF</span>
+            <span class="arrow">→</span>
+            <span><strong>2.</strong> Da doble clic en la palabra o señala el texto y da Enter</span>
+            <span class="arrow">→</span>
+            <span><strong>3.</strong> ¡Ve la traducción!</span>
+        </div>
+
+        <div class="nav-actions">
+            <!-- Selector de color de subrayado -->
+            <div class="color-picker-container" title="Elegir color de subrayado">
+                <input type="color" id="highlight-color" value="#ffeb3b">
+            </div>
+            
+            <div class="upload-btn-wrapper">
+                <button class="btn-primary">Subir Archivo PDF</button>
+                <input type="file" id="file-input" accept="application/pdf">
+            </div>
+            <div class="user-profile">
+                <img src="https://api.dicebear.com/7.x/micah/svg?seed=HappyUser&backgroundColor=transparent" alt="Avatar del usuario" class="avatar">
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="controls hidden" id="page-controls">
+            <button id="prev-page" class="btn-secondary">⟵ Anterior</button>
+            <span class="page-info">Página <span id="page-num">1</span> de <span id="page-count">?</span></span>
+            <button id="next-page" class="btn-secondary">Siguiente ⟶</button>
+        </div>
+
+        <div id="pdf-wrapper" class="hidden">
+            <div id="pdf-container">
+                <!-- El Canvas dibuja el PDF visualmente -->
+                <canvas id="pdf-render"></canvas>
+                <!-- TextLayer superpone el texto invisible para seleccionarlo con precisión -->
+                <div id="text-layer" class="textLayer"></div>
+            </div>
+        </div>
+        
+        <div id="welcome-message" class="empty-state">
+            <h2>Sube un documento para empezar</h2>
+            <p>Lee tus libros o artículos en inglés. Haz doble clic en cualquier palabra para ver su traducción al instante.</p>
+        </div>
+    </main>
+
+    <!-- Cuadro emergente (tooltip) para la traducción -->
+    <div id="tooltip" class="tooltip hidden">
+        <div class="tooltip-header">
+            <span id="word-original">Palabra</span>
+        </div>
+        <div class="tooltip-body">
+            <span id="word-translation">Traducción...</span>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
