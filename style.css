@@ -1,4 +1,4 @@
-﻿:root {
+:root {
     --primary: #0ea5e9; /* Cian tecnolÃ³gico */
     --primary-hover: #0284c7;
     --bg-color: #0f172a; /* Fondo muy oscuro */
@@ -222,44 +222,56 @@ body {
     background: var(--highlight-color);
 }
 
-/* Tooltip mejorado */
-.tooltip {
-    position: absolute;
-    background-color: #1F2937;
-    color: #F9FAFB;
-    border-radius: 8px;
-    font-size: 14px;
+/* Recuadro de traducción en la parte derecha */
+.translation-panel {
+    position: fixed;
+    right: 20px;
+    top: 100px;
+    width: 320px;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(14, 165, 233, 0.4);
+    border-radius: 12px;
+    color: #f8fafc;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
     z-index: 1000;
-    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
-    pointer-events: none;
-    transition: opacity 0.2s, transform 0.2s;
-    min-width: 150px;
-    max-width: 280px;
-    transform: translateY(10px);
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
-.tooltip:not(.hidden) {
-    transform: translateY(0);
+.translation-panel .panel-header {
+    background-color: rgba(30, 41, 59, 0.9);
+    padding: 12px 15px;
+    border-bottom: 1px solid rgba(14, 165, 233, 0.4);
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    color: #38bdf8;
+    margin: 0;
 }
 
-.tooltip.hidden {
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(10px);
+.translation-panel .panel-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
 }
 
-.tooltip-header {
-    background-color: #374151;
-    padding: 8px 12px;
-    border-bottom: 1px solid #4B5563;
+.translation-panel .panel-body {
+    padding: 15px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.translation-panel hr {
+    border: 0;
+    height: 1px;
+    background: rgba(14, 165, 233, 0.3);
+    margin: 12px 0;
+}
+
+#word-original {
     font-weight: 600;
-    color: #60A5FA;
-}
-
-.tooltip-body {
-    padding: 10px 12px;
-    line-height: 1.4;
+    color: #bae6fd;
 }
 
 .hidden {
@@ -366,6 +378,20 @@ input[type='color']::-webkit-color-swatch {
         flex-wrap: wrap;
         justify-content: center;
         gap: 10px;
+    }
+}
+
+
+@media (max-width: 850px) {
+    .translation-panel {
+        top: auto;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        width: 100%;
+        border-radius: 20px 20px 0 0;
+        border-bottom: none;
+        max-height: 40vh;
     }
 }
 
