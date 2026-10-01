@@ -88,7 +88,6 @@ async function loadLastPDF() {
 loadLastPDF();
 
 // Escuchar la subida de un archivo nuevo
-fileInput.addEventListener('click', (e) => { e.target.value = ''; });
 fileInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file.type.includes('pdf') && !file.name.toLowerCase().endsWith('.pdf')) {
@@ -355,6 +354,7 @@ document.addEventListener('touchend', (e) => {
         }
     }, 300);
 });
+
 
 
 
