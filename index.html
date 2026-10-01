@@ -74,9 +74,14 @@
         <div class="panel-body">
             <div class="original-header" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
                 <span id="word-original">Selecciona un texto para traducir...</span>
-                <button id="btn-speak" class="btn-icon" title="Escuchar pronunciación en inglés" style="background: none; border: none; cursor: pointer; font-size: 1.2rem; transition: transform 0.2s;">
-                    🔊
-                </button>
+                <div style="display: flex; gap: 5px;">
+                    <button id="btn-speak" class="btn-icon" title="Escuchar pronunciación en inglés" style="background: none; border: none; cursor: pointer; font-size: 1.2rem; transition: transform 0.2s;">
+                        🔊
+                    </button>
+                    <button id="btn-stop" class="btn-icon" title="Detener pronunciación" style="display: none; background: none; border: none; cursor: pointer; font-size: 1.2rem; transition: transform 0.2s;">
+                        ⏹️
+                    </button>
+                </div>
             </div>
             <hr>
             <span id="word-translation"></span>

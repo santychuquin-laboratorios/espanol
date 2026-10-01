@@ -9,6 +9,7 @@ const translationPanel = document.getElementById('translation-panel');
 const wordOriginal = document.getElementById('word-original');
 const wordTranslation = document.getElementById('word-translation');
 const btnSpeak = document.getElementById('btn-speak');
+const btnStop = document.getElementById('btn-stop');
 let currentEnglishText = '';
 
 // UI Elements
@@ -250,9 +251,20 @@ btnSpeak.addEventListener('click', () => {
 
     utterance.onend = () => {
         wordOriginal.textContent = currentEnglishText;
+        btnSpeak.style.display = 'block';
+        btnStop.style.display = 'none';
     };
 
     window.speechSynthesis.speak(utterance);
+    btnSpeak.style.display = 'none';
+    btnStop.style.display = 'block';
+});
+
+btnStop.addEventListener('click', () => {
+    window.speechSynthesis.cancel();
+    btnSpeak.style.display = 'block';
+    btnStop.style.display = 'none';
+    wordOriginal.textContent = currentEnglishText;
 });
 
 async function translateSelectedText() {
@@ -263,6 +275,8 @@ async function translateSelectedText() {
     if (text.length > 0) {
         currentEnglishText = text;
         btnSpeak.style.display = 'block';
+        btnStop.style.display = 'none';
+        window.speechSynthesis.cancel();
 
         wordOriginal.textContent = text;
         
