@@ -249,3 +249,21 @@ window.addEventListener('resize', () => {
     }
 });
 
+
+// Soporte para Celulares y Tablets (Táctil)
+// En pantallas táctiles, la traducción aparece automáticamente tras resaltar el texto
+document.addEventListener('touchend', (e) => {
+    if (tooltip.contains(e.target)) return;
+    
+    // Pequeño retraso para dejar que el sistema operativo termine de seleccionar el texto
+    setTimeout(() => {
+        const selection = window.getSelection();
+        if (selection.toString().trim().length > 0) {
+            const range = selection.getRangeAt(0);
+            const rect = range.getBoundingClientRect();
+            // Mostrar tooltip un poco más abajo para que no lo tape el dedo
+            translateSelectedText(rect.left + window.scrollX, rect.bottom + window.scrollY + 20);
+        }
+    }, 300);
+});
+
