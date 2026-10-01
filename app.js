@@ -217,12 +217,12 @@ async function translateSelectedText() {
         currentEnglishText = text;
         btnSpeak.style.display = 'block';
 
+        // Mostrar todo el texto completo sin cortar, sin importar si es muy largo
+        wordOriginal.textContent = text;
+
         if (text.length > 500) {
-            wordOriginal.textContent = "Texto muy largo";
-            wordTranslation.textContent = "Por favor selecciona menos texto (máximo 500 caracteres).";
+            wordTranslation.textContent = "Texto muy largo para traducir (límite de la API gratuita es de 500 caracteres). Selecciona menos texto para ver la traducción al español, pero igual puedes usar el altavoz arriba para practicar pronunciación y ver el efecto karaoke.";
         } else {
-            // Mostrar todo el texto completo sin cortar
-            wordOriginal.textContent = text;
             wordTranslation.textContent = "Traduciendo...";
             
             try {
