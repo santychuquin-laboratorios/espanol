@@ -6,7 +6,7 @@
     --text-main: #f8fafc; /* Texto blanco/gris claro */
     --text-muted: #94a3b8;
     --border: #334155;
-    --highlight-color: rgba(255, 235, 59, 0.65); /* Amarillo por defecto (menos transparente) */
+    --highlight-color: rgba(255, 235, 59, 0.85); /* Amarillo por defecto (menos transparente) */
 }
 
 body {
@@ -219,6 +219,7 @@ body {
 }
 .textLayer > span::selection {
     background: var(--highlight-color);
+    color: rgba(0,0,0,0.85);
 }
 
 /* Recuadro de traducciÃ³n en la parte derecha */
@@ -409,6 +410,7 @@ input[type='color']::-webkit-color-swatch {
     box-shadow: 0 0 5px var(--primary);
     transition: background-color 0.1s;
 }
+
 
 
 
