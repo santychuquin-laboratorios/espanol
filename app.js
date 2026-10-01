@@ -1,4 +1,4 @@
-﻿// Configurar la ruta del worker de PDF.js
+// Configurar la ruta del worker de PDF.js
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 const fileInput = document.getElementById('file-input');
@@ -47,22 +47,38 @@ function openDB() {
     });
 }
 
+async function savePDFToDB(arrayBuffer) {
+    try {
+        const db = await openDB();
+        const tx = db.transaction(STORE_NAME, "readwrite");
+        const store = tx.objectStore(STORE_NAME);
+        store.put(arrayBuffer, "lastPDF");
+    } catch (e) {
+        console.error("Error guardando el PDF:", e);
+    }
+}
+
 function loadPDFData(arrayBuffer, initialPage = 1) {
-    const typedarray = new Uint8Array(arrayBuffer);
-    pdfjsLib.getDocument({data: typedarray}).promise.then(pdfDoc_ => {
-        pdfDoc = pdfDoc_;
-        pageCountDisplay.textContent = pdfDoc.numPages;
-        pageNum = initialPage > pdfDoc.numPages ? 1 : initialPage;
-        
-        welcomeMessage.classList.add('hidden');
-        pdfWrapper.classList.remove('hidden');
-        pageControls.classList.remove('hidden');
-        
-                renderPage(pageNum);
-    }).catch(err => {
-        console.error('Error al cargar PDF:', err);
-        alert('Error al cargar el archivo PDF. Asegúrate de que el archivo no esté dañado.');
-    });
+    try {
+        const typedarray = new Uint8Array(arrayBuffer);
+        pdfjsLib.getDocument({data: typedarray}).promise.then(pdfDoc_ => {
+            pdfDoc = pdfDoc_;
+            pageCountDisplay.textContent = pdfDoc.numPages;
+            pageNum = initialPage > pdfDoc.numPages ? 1 : initialPage;
+            
+            welcomeMessage.classList.add('hidden');
+            pdfWrapper.classList.remove('hidden');
+            pageControls.classList.remove('hidden');
+            
+            renderPage(pageNum);
+        }).catch(err => {
+            console.error('Error al cargar PDF:', err);
+            alert('Error al procesar el archivo PDF. Asegúrate de que no esté dañado.');
+        });
+    } catch (err) {
+        console.error('Error al iniciar lectura:', err);
+        alert('Ocurrió un error al intentar leer el archivo.');
+    }
 }
 
 async function loadLastPDF() {
@@ -74,13 +90,16 @@ async function loadLastPDF() {
         
         request.onsuccess = () => {
             if (request.result) {
-                const savedPage = localStorage.getItem('pdfLastPage');
-                const initialPage = savedPage ? parseInt(savedPage) : 1;
+                let initialPage = 1;
+                try {
+                    const savedPage = localStorage.getItem('pdfLastPage');
+                    if (savedPage) initialPage = parseInt(savedPage);
+                } catch(e) {}
                 loadPDFData(request.result, initialPage);
             }
         };
     } catch (e) {
-        console.log("No hay PDF guardado previamente.");
+        console.log("No hay PDF guardado previamente o no hay acceso a DB.");
     }
 }
 
@@ -90,6 +109,8 @@ loadLastPDF();
 // Escuchar la subida de un archivo nuevo
 fileInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
+    if (!file) return;
+
     if (!file.type.includes('pdf') && !file.name.toLowerCase().endsWith('.pdf')) {
         alert('Por favor, sube un archivo PDF válido.');
         return;
@@ -97,68 +118,55 @@ fileInput.addEventListener('change', (e) => {
 
     const fileReader = new FileReader();
     fileReader.onload = function() {
-        // Cargar en pantalla
-                try { localStorage.setItem('pdfLastPage', '1'); } catch(e) {}
+        try { localStorage.setItem('pdfLastPage', '1'); } catch(e) {}
         loadPDFData(this.result, 1);
-        // Guardar para la próxima vez
         savePDFToDB(this.result);
+        e.target.value = ''; // Clear input safely AFTER reading
+    };
+    fileReader.onerror = function() {
+        alert("No se pudo leer el archivo de tu computadora.");
     };
     fileReader.readAsArrayBuffer(file);
 });
-// FunciÃƒÂ³n para renderizar una pÃƒÂ¡gina del PDF
+
+// Función para renderizar una página del PDF
 function renderPage(num) {
     pageIsRendering = true;
 
-    // Obtener la pÃƒÂ¡gina
     pdfDoc.getPage(num).then(page => {
-        // CÃ¡lculo responsive de la escala
         let scale = 1.5;
         const unscaledViewport = page.getViewport({ scale: 1.0 });
         const wrapperWidth = document.getElementById('pdf-wrapper').clientWidth;
         
-        // Ajustar el PDF para que ocupe todo el ancho del contenedor en todas las pantallas
         if (wrapperWidth > 0) {
             scale = (wrapperWidth - 40) / unscaledViewport.width;
-            if (scale > 3.0) scale = 3.0; // limite de escala para que no se vea exageradamente gigante
+            if (scale > 3.0) scale = 3.0;
         }
 
         const viewport = page.getViewport({ scale });
-
-        // Soporte para pantallas de alta resoluciÃ³n (Celulares, Tablets, pantallas Retina)
         const outputScale = window.devicePixelRatio || 1;
 
-        // Ajustar el tamaÃ±o real del canvas multiplicÃ¡ndolo por la densidad de pÃ­xeles
         canvas.width = Math.floor(viewport.width * outputScale);
         canvas.height = Math.floor(viewport.height * outputScale);
         
-        // Mantener el tamaÃ±o visual (CSS) normal
         canvas.style.width = Math.floor(viewport.width) + "px";
         canvas.style.height = Math.floor(viewport.height) + "px";
 
-        // Limpiar la capa de texto anterior
         textLayerDiv.innerHTML = '';
         textLayerDiv.style.height = Math.floor(viewport.height) + 'px';
         textLayerDiv.style.width = Math.floor(viewport.width) + 'px';
-        
-        // Esta variable CSS permite que pdf_viewer.css escale las letras a la perfecciÃ³n
         textLayerDiv.style.setProperty('--scale-factor', viewport.scale);
 
-        // TransformaciÃ³n para que el contexto del dibujo entienda la alta resoluciÃ³n
-        const transform = outputScale !== 1 
-            ? [outputScale, 0, 0, outputScale, 0, 0] 
-            : null;
+        const transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
 
-        // Opciones de renderizado para el canvas
         const renderCtx = {
             canvasContext: ctx,
             transform: transform,
             viewport: viewport
         };
 
-        // Renderizar pÃƒÂ¡gina en el canvas
         const renderTask = page.render(renderCtx);
 
-        // Renderizar la capa de texto
         renderTask.promise.then(() => {
             pageIsRendering = false;
             
@@ -169,7 +177,6 @@ function renderPage(num) {
             
             return page.getTextContent();
         }).then(textContent => {
-            // Asignar el texto a la capa
             pdfjsLib.renderTextLayer({
                 textContentSource: textContent,
                 container: textLayerDiv,
@@ -178,14 +185,12 @@ function renderPage(num) {
             });
         });
 
-        // Actualizar UI de paginaciÃƒÂ³n
         pageNumDisplay.textContent = num;
         prevPageBtn.disabled = num <= 1;
         nextPageBtn.disabled = num >= pdfDoc.numPages;
     });
 }
 
-// Queue rendering
 function queueRenderPage(num) {
     if (pageIsRendering) {
         pageNumIsPending = num;
@@ -194,27 +199,28 @@ function queueRenderPage(num) {
     }
 }
 
-// Pagination Event Listeners
 prevPageBtn.addEventListener('click', () => {
     if (pageNum <= 1) return;
     pageNum--;
+    try { localStorage.setItem('pdfLastPage', pageNum); } catch(e) {}
     queueRenderPage(pageNum);
 });
 
 nextPageBtn.addEventListener('click', () => {
     if (pageNum >= pdfDoc.numPages) return;
     pageNum++;
+    try { localStorage.setItem('pdfLastPage', pageNum); } catch(e) {}
     queueRenderPage(pageNum);
 });
 
-// LÃ³gica de pronunciaciÃ³n (Text-to-Speech nativo del navegador)
+// Text-to-Speech
 btnSpeak.addEventListener('click', () => {
     if (!currentEnglishText) return;
     window.speechSynthesis.cancel();
     
     const utterance = new SpeechSynthesisUtterance(currentEnglishText);
     utterance.lang = 'en-US';
-    utterance.rate = 0.85; // Un poco mÃ¡s lento para ver el resaltado
+    utterance.rate = 0.85;
     
     const voices = window.speechSynthesis.getVoices();
     const englishVoice = voices.find(v => v.lang.startsWith('en'));
@@ -222,13 +228,11 @@ btnSpeak.addEventListener('click', () => {
         utterance.voice = englishVoice;
     }
 
-    // Subrayar palabra por palabra mientras habla
     utterance.onboundary = (event) => {
         if (event.name === 'word') {
             const charIndex = event.charIndex;
             let charLength = event.charLength;
             
-            // Fallback si el navegador no soporta charLength
             if (!charLength) {
                 const match = currentEnglishText.substring(charIndex).match(/^[a-zA-Z0-9_'\u00C0-\u00FF]+/);
                 charLength = match ? match[0].length : 1;
@@ -238,14 +242,12 @@ btnSpeak.addEventListener('click', () => {
             const word = currentEnglishText.substring(charIndex, charIndex + charLength);
             const after = currentEnglishText.substring(charIndex + charLength);
             
-            // FunciÃ³n rÃ¡pida para evitar que inyecte HTML
             const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
             
             wordOriginal.innerHTML = esc(before) + '<span class="speaking-highlight">' + esc(word) + '</span>' + esc(after);
         }
     };
 
-    // Al terminar, dejar el texto normal
     utterance.onend = () => {
         wordOriginal.textContent = currentEnglishText;
     };
@@ -253,7 +255,6 @@ btnSpeak.addEventListener('click', () => {
     window.speechSynthesis.speak(utterance);
 });
 
-// FunciÃ³n que maneja la traducciÃ³n
 async function translateSelectedText() {
     const selection = window.getSelection();
     let text = selection.toString().trim();
@@ -263,7 +264,6 @@ async function translateSelectedText() {
         currentEnglishText = text;
         btnSpeak.style.display = 'block';
 
-                // Mostrar todo el texto original
         wordOriginal.textContent = text;
         
         let textToTranslate = text;
@@ -279,13 +279,12 @@ async function translateSelectedText() {
         wordTranslation.textContent = "Traduciendo...";
         
         try {
-            const response = await fetch(\https://api.mymemory.translated.net/get?q=\\\&langpair=en|es\);
+            const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(textToTranslate)}&langpair=en|es`);
             const data = await response.json();
             
             if (data && data.responseData && data.responseData.translatedText) {
                 let translatedPart = data.responseData.translatedText;
                 if (untranslatedText) {
-                    // Escapar caracteres para evitar problemas
                     const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
                     wordTranslation.innerHTML = esc(translatedPart) + ' <span style="color: #94a3b8; font-style: italic;" title="Texto excede el límite de 500 caracteres gratuitos"> ' + esc(untranslatedText) + '</span>';
                 } else {
@@ -300,7 +299,7 @@ async function translateSelectedText() {
         }
     }
 }
-// LÃ³gica 1: Doble clic en una palabra (traduce al instante)
+
 document.addEventListener('dblclick', (e) => {
     if (translationPanel.contains(e.target)) return;
     const selection = window.getSelection();
@@ -309,7 +308,6 @@ document.addEventListener('dblclick', (e) => {
     }
 });
 
-// LÃ³gica 2: Resaltar texto y presionar "Enter"
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
         const selection = window.getSelection();
@@ -320,7 +318,6 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// LÃ³gica para cambiar el color del resaltado
 const colorPicker = document.getElementById('highlight-color');
 colorPicker.addEventListener('input', (e) => {
     const hex = e.target.value;
@@ -330,10 +327,8 @@ colorPicker.addEventListener('input', (e) => {
     document.documentElement.style.setProperty('--highlight-color', `rgba(${r}, ${g}, ${b}, 0.65)`);
 });
 
-// Redibujar el PDF si el usuario cambia el tamaÃ±o de la ventana o gira el celular
 window.addEventListener('resize', () => {
     if (pdfDoc && !pageIsRendering) {
-        // AÃ±adimos un pequeÃ±o retraso para no sobrecargar el navegador al redimensionar
         clearTimeout(window.resizeTimer);
         window.resizeTimer = setTimeout(() => {
             renderPage(pageNum);
@@ -341,12 +336,8 @@ window.addEventListener('resize', () => {
     }
 });
 
-
-// Soporte para Celulares y Tablets (TÃ¡ctil)
 document.addEventListener('touchend', (e) => {
     if (translationPanel.contains(e.target)) return;
-    
-    // PequeÃ±o retraso para dejar que el sistema operativo termine de seleccionar el texto
     setTimeout(() => {
         const selection = window.getSelection();
         if (selection.toString().trim().length > 0) {
@@ -354,13 +345,3 @@ document.addEventListener('touchend', (e) => {
         }
     }, 300);
 });
-
-
-
-
-
-
-
-
-
-
