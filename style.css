@@ -212,11 +212,7 @@ body {
 .textLayer {
     opacity: 1; 
 }
-.textLayer > span {
-    cursor: text;
-    border-radius: 2px;
-    padding: 0 1px; /* AÃƒÂ±ade espacio invisible para que el cursor lo capte mÃƒÂ¡s fÃƒÂ¡cil */
-}
+.textLayer > span { cursor: text; }
 .textLayer > span::selection {
     background: var(--highlight-color);
     color: transparent;
@@ -410,6 +406,7 @@ input[type='color']::-webkit-color-swatch {
     box-shadow: 0 0 5px var(--primary);
     transition: background-color 0.1s;
 }
+
 
 
 
