@@ -96,7 +96,7 @@ loadLastPDF();
 // Escuchar la subida de un archivo nuevo
 fileInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
-    if (file.type !== 'application/pdf') {
+    if (!file.type.includes('pdf') && !file.name.toLowerCase().endsWith('.pdf')) {
         alert('Por favor, sube un archivo PDF válido.');
         return;
     }
@@ -360,6 +360,7 @@ document.addEventListener('touchend', (e) => {
         }
     }, 300);
 });
+
 
 
 
