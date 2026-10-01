@@ -25,39 +25,92 @@ let pageNum = 1;
 let pageIsRendering = false;
 let pageNumIsPending = null;
 
-// Escuchar la subida de un archivo
+// --- Memoria del PDF (IndexedDB) ---
+const DB_NAME = "PDFReaderDB";
+const STORE_NAME = "pdfStore";
+
+function openDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, 1);
+        request.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+                db.createObjectStore(STORE_NAME);
+            }
+        };
+        request.onsuccess = (e) => resolve(e.target.result);
+        request.onerror = (e) => reject(e.target.error);
+    });
+}
+
+async function savePDFToDB(arrayBuffer) {
+    try {
+        const db = await openDB();
+        const tx = db.transaction(STORE_NAME, "readwrite");
+        const store = tx.objectStore(STORE_NAME);
+        store.put(arrayBuffer, "lastPDF");
+    } catch (e) {
+        console.error("Error guardando el PDF:", e);
+    }
+}
+
+function loadPDFData(arrayBuffer, initialPage = 1) {
+    const typedarray = new Uint8Array(arrayBuffer);
+    pdfjsLib.getDocument({data: typedarray}).promise.then(pdfDoc_ => {
+        pdfDoc = pdfDoc_;
+        pageCountDisplay.textContent = pdfDoc.numPages;
+        pageNum = initialPage > pdfDoc.numPages ? 1 : initialPage;
+        
+        welcomeMessage.classList.add('hidden');
+        pdfWrapper.classList.remove('hidden');
+        pageControls.classList.remove('hidden');
+        
+        renderPage(pageNum);
+    }).catch(err => {
+        console.error('Error al cargar PDF:', err);
+    });
+}
+
+async function loadLastPDF() {
+    try {
+        const db = await openDB();
+        const tx = db.transaction(STORE_NAME, "readonly");
+        const store = tx.objectStore(STORE_NAME);
+        const request = store.get("lastPDF");
+        
+        request.onsuccess = () => {
+            if (request.result) {
+                const savedPage = localStorage.getItem('pdfLastPage');
+                const initialPage = savedPage ? parseInt(savedPage) : 1;
+                loadPDFData(request.result, initialPage);
+            }
+        };
+    } catch (e) {
+        console.log("No hay PDF guardado previamente.");
+    }
+}
+
+// Cargar al iniciar la página
+loadLastPDF();
+
+// Escuchar la subida de un archivo nuevo
 fileInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file.type !== 'application/pdf') {
-        alert('Por favor, sube un archivo PDF vÃƒÂ¡lido.');
+        alert('Por favor, sube un archivo PDF válido.');
         return;
     }
 
     const fileReader = new FileReader();
     fileReader.onload = function() {
-        const typedarray = new Uint8Array(this.result);
-        
-        // Cargar el documento PDF
-        pdfjsLib.getDocument({data: typedarray}).promise.then(pdfDoc_ => {
-            pdfDoc = pdfDoc_;
-            pageCountDisplay.textContent = pdfDoc.numPages;
-            pageNum = 1;
-            
-            // UI Updates
-            welcomeMessage.classList.add('hidden');
-            pdfWrapper.classList.remove('hidden');
-            pageControls.classList.remove('hidden');
-            
-            // Renderizar la primera pÃƒÂ¡gina
-            renderPage(pageNum);
-        }).catch(err => {
-            console.error('Error al cargar PDF:', err);
-            alert('Error al cargar el PDF.');
-        });
+        // Cargar en pantalla
+        localStorage.setItem('pdfLastPage', '1');
+        loadPDFData(this.result, 1);
+        // Guardar para la próxima vez
+        savePDFToDB(this.result);
     };
     fileReader.readAsArrayBuffer(file);
 });
-
 // FunciÃƒÂ³n para renderizar una pÃƒÂ¡gina del PDF
 function renderPage(num) {
     pageIsRendering = true;
@@ -295,5 +348,7 @@ document.addEventListener('touchend', (e) => {
         }
     }, 300);
 });
+
+
 
 
