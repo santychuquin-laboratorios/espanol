@@ -76,21 +76,34 @@ function renderPage(num) {
 
         const viewport = page.getViewport({ scale });
 
-        // Ajustar el canvas al tamaÃ±o del viewport
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
+        // Soporte para pantallas de alta resolución (Celulares, Tablets, pantallas Retina)
+        const outputScale = window.devicePixelRatio || 1;
+
+        // Ajustar el tamaño real del canvas multiplicándolo por la densidad de píxeles
+        canvas.width = Math.floor(viewport.width * outputScale);
+        canvas.height = Math.floor(viewport.height * outputScale);
+        
+        // Mantener el tamaño visual (CSS) normal
+        canvas.style.width = Math.floor(viewport.width) + "px";
+        canvas.style.height = Math.floor(viewport.height) + "px";
 
         // Limpiar la capa de texto anterior
         textLayerDiv.innerHTML = '';
-        textLayerDiv.style.height = viewport.height + 'px';
-        textLayerDiv.style.width = viewport.width + 'px';
+        textLayerDiv.style.height = Math.floor(viewport.height) + 'px';
+        textLayerDiv.style.width = Math.floor(viewport.width) + 'px';
         
-        // Â¡MUUY IMPORTANTE! Esta variable CSS permite que pdf_viewer.css escale las letras a la perfecciÃ³n
+        // Esta variable CSS permite que pdf_viewer.css escale las letras a la perfección
         textLayerDiv.style.setProperty('--scale-factor', viewport.scale);
+
+        // Transformación para que el contexto del dibujo entienda la alta resolución
+        const transform = outputScale !== 1 
+            ? [outputScale, 0, 0, outputScale, 0, 0] 
+            : null;
 
         // Opciones de renderizado para el canvas
         const renderCtx = {
             canvasContext: ctx,
+            transform: transform,
             viewport: viewport
         };
 
