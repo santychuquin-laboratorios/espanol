@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lector de InglÃ©s Inteligente</title>
-    <!-- Google Fonts para mejor tipografÃ­a -->
+    <title>Lector de Inglés Inteligente</title>
+    <!-- Google Fonts para mejor tipografía -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     
@@ -22,10 +22,10 @@
         <!-- Instrucciones en el centro de la barra -->
         <div class="nav-instructions">
             <span><strong>1.</strong> Sube tu PDF</span>
-            <span class="arrow">â†’</span>
-            <span><strong>2.</strong> Da doble clic en la palabra o seÃ±ala el texto y da Enter</span>
-            <span class="arrow">â†’</span>
-            <span><strong>3.</strong> Â¡Ve la traducciÃ³n!</span>
+            <span class="arrow">→</span>
+            <span><strong>2.</strong> Da doble clic en la palabra o señala el texto y da Enter</span>
+            <span class="arrow">→</span>
+            <span><strong>3.</strong> ¡Ve la traducción!</span>
         </div>
 
         <div class="nav-actions">
@@ -34,7 +34,7 @@
                 <input type="color" id="highlight-color" value="#ffeb3b">
             </div>
             
-                        <label class="btn-primary" style="cursor: pointer; display: inline-block; text-align: center; padding: 10px 20px; border-radius: 6px;">
+            <label class="btn-primary" style="cursor: pointer; display: inline-block; text-align: center; padding: 10px 20px; border-radius: 6px;">
                 Subir Archivo PDF
                 <input type="file" id="file-input" accept=".pdf,application/pdf" style="display: none;">
             </label>
@@ -46,27 +46,27 @@
 
     <main class="main-content">
         <div class="controls hidden" id="page-controls">
-            <button id="prev-page" class="btn-secondary">âŸµ Anterior</button>
-            <span class="page-info">PÃ¡gina <span id="page-num">1</span> de <span id="page-count">?</span></span>
-            <button id="next-page" class="btn-secondary">Siguiente âŸ¶</button>
+            <button id="prev-page" class="btn-secondary">⟵ Anterior</button>
+            <span class="page-info">Página <span id="page-num">1</span> de <span id="page-count">?</span></span>
+            <button id="next-page" class="btn-secondary">Siguiente ⟶</button>
         </div>
 
         <div id="pdf-wrapper" class="hidden">
             <div id="pdf-container">
                 <!-- El Canvas dibuja el PDF visualmente -->
                 <canvas id="pdf-render"></canvas>
-                <!-- TextLayer superpone el texto invisible para seleccionarlo con precisiÃ³n -->
+                <!-- TextLayer superpone el texto invisible para seleccionarlo con precisión -->
                 <div id="text-layer" class="textLayer"></div>
             </div>
         </div>
         
         <div id="welcome-message" class="empty-state">
             <h2>Sube un documento para empezar</h2>
-            <p>Lee tus libros o artÃ­culos en inglÃ©s. Haz doble clic en cualquier palabra para ver su traducciÃ³n al instante.</p>
+            <p>Lee tus libros o artículos en inglés. Haz doble clic en cualquier palabra para ver su traducción al instante.</p>
         </div>
     </main>
 
-    <!-- Recuadro fijo de traducciÃ³n a la derecha -->
+    <!-- Recuadro fijo de traducción a la derecha -->
     <div id="translation-panel" class="translation-panel">
         <div class="panel-header">
             <h3>Traductor</h3>
@@ -74,8 +74,8 @@
         <div class="panel-body">
             <div class="original-header" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
                 <span id="word-original">Selecciona un texto para traducir...</span>
-                <button id="btn-speak" class="btn-icon" title="Escuchar pronunciaciÃ³n en inglÃ©s" style="background: none; border: none; cursor: pointer; font-size: 1.2rem; transition: transform 0.2s;">
-                    ðŸ”Š
+                <button id="btn-speak" class="btn-icon" title="Escuchar pronunciación en inglés" style="background: none; border: none; cursor: pointer; font-size: 1.2rem; transition: transform 0.2s;">
+                    🔊
                 </button>
             </div>
             <hr>
@@ -86,5 +86,3 @@
     <script src="app.js"></script>
 </body>
 </html>
-
-
