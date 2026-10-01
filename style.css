@@ -395,3 +395,15 @@ input[type='color']::-webkit-color-swatch {
     }
 }
 
+
+/* Clase para resaltar la palabra que se está pronunciando */
+.speaking-highlight {
+    background-color: var(--primary);
+    color: #fff;
+    padding: 0 3px;
+    border-radius: 4px;
+    font-weight: bold;
+    box-shadow: 0 0 5px var(--primary);
+    transition: background-color 0.1s;
+}
+

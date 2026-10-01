@@ -168,13 +168,42 @@ btnSpeak.addEventListener('click', () => {
     
     const utterance = new SpeechSynthesisUtterance(currentEnglishText);
     utterance.lang = 'en-US';
-    utterance.rate = 0.9;
+    utterance.rate = 0.85; // Un poco más lento para ver el resaltado
     
     const voices = window.speechSynthesis.getVoices();
     const englishVoice = voices.find(v => v.lang.startsWith('en'));
     if (englishVoice) {
         utterance.voice = englishVoice;
     }
+
+    // Subrayar palabra por palabra mientras habla
+    utterance.onboundary = (event) => {
+        if (event.name === 'word') {
+            const charIndex = event.charIndex;
+            let charLength = event.charLength;
+            
+            // Fallback si el navegador no soporta charLength
+            if (!charLength) {
+                const match = currentEnglishText.substring(charIndex).match(/^[a-zA-Z0-9_'\u00C0-\u00FF]+/);
+                charLength = match ? match[0].length : 1;
+            }
+            
+            const before = currentEnglishText.substring(0, charIndex);
+            const word = currentEnglishText.substring(charIndex, charIndex + charLength);
+            const after = currentEnglishText.substring(charIndex + charLength);
+            
+            // Función rápida para evitar que inyecte HTML
+            const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            
+            wordOriginal.innerHTML = esc(before) + '<span class="speaking-highlight">' + esc(word) + '</span>' + esc(after);
+        }
+    };
+
+    // Al terminar, dejar el texto normal
+    utterance.onend = () => {
+        wordOriginal.textContent = currentEnglishText;
+    };
+
     window.speechSynthesis.speak(utterance);
 });
 
@@ -192,7 +221,8 @@ async function translateSelectedText() {
             wordOriginal.textContent = "Texto muy largo";
             wordTranslation.textContent = "Por favor selecciona menos texto (máximo 500 caracteres).";
         } else {
-            wordOriginal.textContent = text.length > 40 ? text.substring(0, 40) + "..." : text;
+            // Mostrar todo el texto completo sin cortar
+            wordOriginal.textContent = text;
             wordTranslation.textContent = "Traduciendo...";
             
             try {
