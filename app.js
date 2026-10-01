@@ -31,27 +31,20 @@ const STORE_NAME = "pdfStore";
 
 function openDB() {
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open(DB_NAME, 1);
-        request.onupgradeneeded = (e) => {
-            const db = e.target.result;
-            if (!db.objectStoreNames.contains(STORE_NAME)) {
-                db.createObjectStore(STORE_NAME);
-            }
-        };
-        request.onsuccess = (e) => resolve(e.target.result);
-        request.onerror = (e) => reject(e.target.error);
+        try {
+            const request = indexedDB.open(DB_NAME, 1);
+            request.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains(STORE_NAME)) {
+                    db.createObjectStore(STORE_NAME);
+                }
+            };
+            request.onsuccess = (e) => resolve(e.target.result);
+            request.onerror = (e) => reject(e.target.error);
+        } catch(e) {
+            reject(e);
+        }
     });
-}
-
-async function savePDFToDB(arrayBuffer) {
-    try {
-        const db = await openDB();
-        const tx = db.transaction(STORE_NAME, "readwrite");
-        const store = tx.objectStore(STORE_NAME);
-        store.put(arrayBuffer, "lastPDF");
-    } catch (e) {
-        console.error("Error guardando el PDF:", e);
-    }
 }
 
 function loadPDFData(arrayBuffer, initialPage = 1) {
@@ -65,9 +58,10 @@ function loadPDFData(arrayBuffer, initialPage = 1) {
         pdfWrapper.classList.remove('hidden');
         pageControls.classList.remove('hidden');
         
-        renderPage(pageNum);
+                renderPage(pageNum);
     }).catch(err => {
         console.error('Error al cargar PDF:', err);
+        alert('Error al cargar el archivo PDF. Asegúrate de que el archivo no esté dañado.');
     });
 }
 
@@ -94,6 +88,7 @@ async function loadLastPDF() {
 loadLastPDF();
 
 // Escuchar la subida de un archivo nuevo
+fileInput.addEventListener('click', (e) => { e.target.value = ''; });
 fileInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file.type.includes('pdf') && !file.name.toLowerCase().endsWith('.pdf')) {
@@ -360,6 +355,7 @@ document.addEventListener('touchend', (e) => {
         }
     }, 300);
 });
+
 
 
 
