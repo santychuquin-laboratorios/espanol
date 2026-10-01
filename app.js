@@ -269,31 +269,43 @@ async function translateSelectedText() {
         currentEnglishText = text;
         btnSpeak.style.display = 'block';
 
-        // Mostrar todo el texto completo sin cortar, sin importar si es muy largo
+                // Mostrar todo el texto original
         wordOriginal.textContent = text;
-
+        
+        let textToTranslate = text;
+        let untranslatedText = "";
+        
         if (text.length > 500) {
-            wordTranslation.textContent = "Texto muy largo para traducir (lÃ­mite de la API gratuita es de 500 caracteres). Selecciona menos texto para ver la traducciÃ³n al espaÃ±ol, pero igual puedes usar el altavoz arriba para practicar pronunciaciÃ³n y ver el efecto karaoke.";
-        } else {
-            wordTranslation.textContent = "Traduciendo...";
+            let splitIndex = text.lastIndexOf(" ", 500);
+            if (splitIndex === -1) splitIndex = 500;
+            textToTranslate = text.substring(0, splitIndex);
+            untranslatedText = text.substring(splitIndex);
+        }
+
+        wordTranslation.textContent = "Traduciendo...";
+        
+        try {
+            const response = await fetch(\https://api.mymemory.translated.net/get?q=\\\&langpair=en|es\);
+            const data = await response.json();
             
-            try {
-                const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|es`);
-                const data = await response.json();
-                
-                if (data && data.responseData && data.responseData.translatedText) {
-                    wordTranslation.textContent = data.responseData.translatedText;
+            if (data && data.responseData && data.responseData.translatedText) {
+                let translatedPart = data.responseData.translatedText;
+                if (untranslatedText) {
+                    // Escapar caracteres para evitar problemas
+                    const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                    wordTranslation.innerHTML = esc(translatedPart) + ' <span style="color: #94a3b8; font-style: italic;" title="Texto excede el límite de 500 caracteres gratuitos"> ' + esc(untranslatedText) + '</span>';
                 } else {
-                    wordTranslation.textContent = "No se encontrÃ³ traducciÃ³n.";
+                    wordTranslation.textContent = translatedPart;
                 }
-            } catch (error) {
-                console.error("Error al traducir:", error);
-                wordTranslation.textContent = "Error al conectar con el traductor.";
+            } else {
+                wordTranslation.textContent = "No se encontró traducción.";
             }
+        } catch (error) {
+            console.error("Error al traducir:", error);
+            wordTranslation.textContent = "Error al conectar con el traductor.";
         }
     }
 }
-
 // LÃ³gica 1: Doble clic en una palabra (traduce al instante)
 document.addEventListener('dblclick', (e) => {
     if (translationPanel.contains(e.target)) return;
@@ -348,6 +360,7 @@ document.addEventListener('touchend', (e) => {
         }
     }, 300);
 });
+
 
 
 
