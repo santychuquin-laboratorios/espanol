@@ -131,8 +131,8 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    padding: 30px 20px;
+    align-items: flex-start;
+    padding: 30px 340px 30px 20px;
 }
 
 .empty-state {
@@ -201,7 +201,7 @@ body {
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     border: 1px solid var(--border);
     overflow: auto;
-    width: 100%; max-width: 1000px;
+    width: 100%; max-width: 1400px;
 }
 
 #pdf-container {
@@ -383,6 +383,10 @@ input[type='color']::-webkit-color-swatch {
 
 
 @media (max-width: 850px) {
+    .main-content {
+        padding: 10px;
+        align-items: center;
+    }
     .translation-panel {
         top: auto;
         bottom: 0;
@@ -406,6 +410,7 @@ input[type='color']::-webkit-color-swatch {
     box-shadow: 0 0 5px var(--primary);
     transition: background-color 0.1s;
 }
+
 
 
 
