@@ -104,7 +104,7 @@ fileInput.addEventListener('change', (e) => {
     const fileReader = new FileReader();
     fileReader.onload = function() {
         // Cargar en pantalla
-        localStorage.setItem('pdfLastPage', '1');
+                try { localStorage.setItem('pdfLastPage', '1'); } catch(e) {}
         loadPDFData(this.result, 1);
         // Guardar para la próxima vez
         savePDFToDB(this.result);
@@ -360,6 +360,7 @@ document.addEventListener('touchend', (e) => {
         }
     }, 300);
 });
+
 
 
 
