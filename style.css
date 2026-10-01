@@ -1,5 +1,5 @@
-:root {
-    --primary: #0ea5e9; /* Cian tecnológico */
+﻿:root {
+    --primary: #0ea5e9; /* Cian tecnolÃ³gico */
     --primary-hover: #0284c7;
     --bg-color: #0f172a; /* Fondo muy oscuro */
     --surface: #1e293b; /* Superficie de tarjetas oscura */
@@ -11,7 +11,7 @@
 
 body {
     font-family: 'Inter', sans-serif;
-    /* Fondo con la imagen tecnológica de red */
+    /* Fondo con la imagen tecnolÃ³gica de red */
     background-color: var(--bg-color);
     background-image: url('bg-tech.jpg');
     background-size: cover;
@@ -54,7 +54,7 @@ body {
     gap: 12px;
     font-size: 0.85rem;
     color: var(--text-muted);
-    background-color: rgba(15, 23, 42, 0.4); /* Fondo translúcido */
+    background-color: rgba(15, 23, 42, 0.4); /* Fondo translÃºcido */
     padding: 8px 18px;
     border-radius: 20px;
     border: 1px solid var(--border);
@@ -201,22 +201,22 @@ body {
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     border: 1px solid var(--border);
     overflow: auto;
-    max-width: 100%;
+    width: 100%; max-width: 1000px;
 }
 
 #pdf-container {
     position: relative;
-    /* La capa de texto se ajustará automáticamente gracias al CSS oficial de PDF.js */
+    /* La capa de texto se ajustarÃ¡ automÃ¡ticamente gracias al CSS oficial de PDF.js */
 }
 
-/* Mejorar sensibilidad de selección de la capa de texto */
+/* Mejorar sensibilidad de selecciÃ³n de la capa de texto */
 .textLayer {
     opacity: 1; 
 }
 .textLayer > span {
     cursor: text;
     border-radius: 2px;
-    padding: 0 1px; /* Añade espacio invisible para que el cursor lo capte más fácil */
+    padding: 0 1px; /* AÃ±ade espacio invisible para que el cursor lo capte mÃ¡s fÃ¡cil */
 }
 .textLayer > span::selection {
     background: var(--highlight-color);
@@ -311,7 +311,7 @@ input[type='color']::-webkit-color-swatch {
 
 
 /* =========================================
-   DISE�O RESPONSIVO (M�VILES Y TABLETS)
+   DISEÑO RESPONSIVO (MÓVILES Y TABLETS)
    ========================================= */
 @media (max-width: 850px) {
     .navbar {
