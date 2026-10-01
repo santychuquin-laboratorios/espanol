@@ -1,4 +1,4 @@
-// Configurar la ruta del worker de PDF.js
+﻿// Configurar la ruta del worker de PDF.js
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 const fileInput = document.getElementById('file-input');
@@ -74,11 +74,11 @@ function loadPDFData(arrayBuffer, initialPage = 1) {
             renderPage(pageNum);
         }).catch(err => {
             console.error('Error al cargar PDF:', err);
-            alert('Error al procesar el archivo PDF. Asegúrate de que no esté dañado.');
+            alert('Error al procesar el archivo PDF. AsegÃºrate de que no estÃ© daÃ±ado.');
         });
     } catch (err) {
         console.error('Error al iniciar lectura:', err);
-        alert('Ocurrió un error al intentar leer el archivo.');
+        alert('OcurriÃ³ un error al intentar leer el archivo.');
     }
 }
 
@@ -104,7 +104,7 @@ async function loadLastPDF() {
     }
 }
 
-// Cargar al iniciar la página
+// Cargar al iniciar la pÃ¡gina
 loadLastPDF();
 
 // Escuchar la subida de un archivo nuevo
@@ -113,7 +113,7 @@ fileInput.addEventListener('change', (e) => {
     if (!file) return;
 
     if (!file.type.includes('pdf') && !file.name.toLowerCase().endsWith('.pdf')) {
-        alert('Por favor, sube un archivo PDF válido.');
+        alert('Por favor, sube un archivo PDF vÃ¡lido.');
         return;
     }
 
@@ -130,7 +130,7 @@ fileInput.addEventListener('change', (e) => {
     fileReader.readAsArrayBuffer(file);
 });
 
-// Función para renderizar una página del PDF
+// FunciÃ³n para renderizar una pÃ¡gina del PDF
 function renderPage(num) {
     pageIsRendering = true;
 
@@ -267,13 +267,19 @@ btnStop.addEventListener('click', () => {
     wordOriginal.textContent = currentEnglishText;
 });
 
-async function translateSelectedText() {
-    const selection = window.getSelection();
-    let text = selection.toString().trim();
-    text = text.replace(/\s+/g, ' ');
-
+async function performTranslation(text) {
     if (text.length > 0) {
         currentEnglishText = text;
+        btnSpeak.style.display = 'block';
+        btnStop.style.display = 'none';
+        window.speechSynthesis.cancel();
+
+        if (document.activeElement !== wordOriginal) {
+            wordOriginal.textContent = text;
+        }
+        btnSpeak.style.display = 'block';
+        btnStop.style.display = 'none';
+        window.speechSynthesis.cancel();        }
         btnSpeak.style.display = 'block';
         btnStop.style.display = 'none';
         window.speechSynthesis.cancel();
@@ -300,12 +306,12 @@ async function translateSelectedText() {
                 let translatedPart = data.responseData.translatedText;
                 if (untranslatedText) {
                     const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                    wordTranslation.innerHTML = esc(translatedPart) + ' <span style="color: #94a3b8; font-style: italic;" title="Texto excede el límite de 500 caracteres gratuitos"> ' + esc(untranslatedText) + '</span>';
+                    wordTranslation.innerHTML = esc(translatedPart) + ' <span style="color: #94a3b8; font-style: italic;" title="Texto excede el lÃ­mite de 500 caracteres gratuitos"> ' + esc(untranslatedText) + '</span>';
                 } else {
                     wordTranslation.textContent = translatedPart;
                 }
             } else {
-                wordTranslation.textContent = "No se encontró traducción.";
+                wordTranslation.textContent = "No se encontrÃ³ traducciÃ³n.";
             }
         } catch (error) {
             console.error("Error al traducir:", error);
@@ -313,6 +319,39 @@ async function translateSelectedText() {
         }
     }
 }
+
+async function translateSelectedText() {
+    const selection = window.getSelection();
+    let text = selection.toString().trim();
+    text = text.replace(/\s+/g, ' ');
+    if (text.length > 0) {
+        await performTranslation(text);
+    }
+}
+
+wordOriginal.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        let text = wordOriginal.textContent.trim();
+        text = text.replace(/\s+/g, ' ');
+        if (text.length > 0 && text !== "Selecciona un texto para traducir..." && text !== "Escribe aquÃ­ para traducir...") {
+            performTranslation(text);
+            wordOriginal.blur();
+        }
+    }
+});
+
+wordOriginal.addEventListener('focus', () => {
+    if (wordOriginal.textContent.trim() === "Selecciona un texto para traducir..." || wordOriginal.textContent.trim() === "Escribe aquÃ­ para traducir...") {
+        wordOriginal.textContent = "";
+    }
+});
+
+wordOriginal.addEventListener('blur', () => {
+    if (wordOriginal.textContent.trim() === "") {
+        wordOriginal.textContent = "Escribe aquÃ­ para traducir...";
+    }
+});
 
 document.addEventListener('dblclick', (e) => {
     if (translationPanel.contains(e.target)) return;
@@ -359,3 +398,4 @@ document.addEventListener('touchend', (e) => {
         }
     }, 300);
 });
+
