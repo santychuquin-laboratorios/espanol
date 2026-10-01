@@ -56,6 +56,31 @@ fileInput.addEventListener('change', (e) => {
     fileReader.readAsArrayBuffer(file);
 });
 
+// Variable para guardar el texto actual y leerlo en voz alta
+let currentEnglishText = '';
+const btnSpeak = document.getElementById('btn-speak');
+
+// Lógica de pronunciación (Text-to-Speech nativo del navegador)
+btnSpeak.addEventListener('click', () => {
+    if (!currentEnglishText) return;
+    
+    // Detiene cualquier lectura anterior
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(currentEnglishText);
+    utterance.lang = 'en-US'; // Pronunciación en inglés americano
+    utterance.rate = 0.9; // Un poco más lento para entender mejor al aprender
+    
+    // Buscar una voz nativa en inglés si está disponible
+    const voices = window.speechSynthesis.getVoices();
+    const englishVoice = voices.find(v => v.lang.startsWith('en'));
+    if (englishVoice) {
+        utterance.voice = englishVoice;
+    }
+    
+    window.speechSynthesis.speak(utterance);
+});
+
 // Función que maneja la traducción en el panel derecho
 async function translateSelectedText() {
     const selection = window.getSelection();
@@ -63,6 +88,9 @@ async function translateSelectedText() {
     text = text.replace(/\s+/g, ' ');
 
     if (text.length > 0) {
+        currentEnglishText = text;
+        btnSpeak.style.display = 'block'; // Mostrar el botón de altavoz
+
         if (text.length > 500) {
             wordOriginal.textContent = "Texto muy largo";
             wordTranslation.textContent = "Por favor selecciona menos texto (máximo 500 caracteres).";
@@ -116,14 +144,6 @@ document.addEventListener('touchend', (e) => {
             translateSelectedText();
         }
     }, 300);
-});
-
-// Ocultar la traducción si se hace clic afuera (opcional, o reiniciar texto)
-document.addEventListener('mousedown', (e) => {
-    if (!translationPanel.contains(e.target) && !e.target.closest('#pdf-container')) {
-        // wordOriginal.textContent = "Selecciona un texto para traducir...";
-        // wordTranslation.textContent = "";
-    }
 });
 
 // Lógica para cambiar el color del resaltado
