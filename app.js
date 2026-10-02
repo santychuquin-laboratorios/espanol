@@ -529,6 +529,8 @@ if (btnTranslateHighlight) {
 if (btnClearHighlight) {
     btnClearHighlight.addEventListener('click', () => {
         clearHighlights();
+        // Auto-seleccionar la Mano (Leer) al limpiar en dispositivos táctiles
+        if (typeof setTool === 'function') setTool(0);
             const ha = document.getElementById('highlight-actions'); if(ha) ha.style.display = 'none';
         const highlightActions = document.getElementById('highlight-actions');
         if (highlightActions) highlightActions.style.display = 'none';
@@ -653,6 +655,7 @@ quickColors.forEach(btn => {
         setTool(1);
     });
 });
+
 
 
 
