@@ -452,32 +452,36 @@ const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 
 if (!isTouchDevice && toggleModeBtn) {
     toggleModeBtn.style.display = 'none'; // Ocultar en PC
 }
-let isHighlightMode = false;
+let interactionMode = 0; // 0: Leer, 1: Resaltar, 2: Borrar
 let isHighlighting = false;
 let isErasing = false;
 let highlightedSpans = new Set();
 
 if (toggleModeBtn) {
-    toggleModeBtn.textContent = 'Modo: Leer (Desplazamiento suave)';
+    toggleModeBtn.textContent = 'Modo: Leer (Mover página)';
     toggleModeBtn.style.background = '#334155';
     document.body.classList.remove('highlight-mode');
 
     toggleModeBtn.addEventListener('click', () => {
-        isHighlightMode = !isHighlightMode;
+        interactionMode = (interactionMode + 1) % 3;
         const textLayer = document.getElementById('text-layer');
-        if (isHighlightMode) {
-            toggleModeBtn.textContent = 'Modo: Resaltador (Mano alzada)';
-            toggleModeBtn.style.background = 'var(--glow-color)';
-            document.body.classList.add('highlight-mode');
-            if (textLayer) textLayer.style.pointerEvents = 'auto';
-        } else {
-            toggleModeBtn.textContent = 'Modo: Leer (Desplazamiento suave)';
+        
+        if (interactionMode === 0) {
+            toggleModeBtn.textContent = 'Modo: Leer (Mover página)';
             toggleModeBtn.style.background = '#334155';
             document.body.classList.remove('highlight-mode');
             if (textLayer) textLayer.style.pointerEvents = 'none';
             window.getSelection().removeAllRanges();
-            clearHighlights();
-            const ha = document.getElementById('highlight-actions'); if(ha) ha.style.display = 'none';
+        } else if (interactionMode === 1) {
+            toggleModeBtn.textContent = 'Modo: Resaltador 🖌️';
+            toggleModeBtn.style.background = 'var(--glow-color)';
+            document.body.classList.add('highlight-mode');
+            if (textLayer) textLayer.style.pointerEvents = 'auto';
+        } else if (interactionMode === 2) {
+            toggleModeBtn.textContent = 'Modo: Borrador 🧽';
+            toggleModeBtn.style.background = '#ef4444';
+            document.body.classList.add('highlight-mode');
+            if (textLayer) textLayer.style.pointerEvents = 'auto';
         }
     });
 }
@@ -539,21 +543,16 @@ if (btnClearHighlight) {
 
 // Eventos Táctiles (Tablet)
 document.addEventListener('touchstart', (e) => {
-    if (!isHighlightMode) return;
+    if (interactionMode === 0) return;
     if (e.target.closest('.textLayer')) {
         isHighlighting = true;
-        const el = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
-        if (el && el.classList.contains('custom-highlight')) {
-            isErasing = true; // Si tocamos una palabra pintada, este trazo será borrador
-        } else {
-            isErasing = false; // Si tocamos en blanco, será resaltador normal
-        }
+        isErasing = (interactionMode === 2);
         processHighlight(e.touches[0].clientX, e.touches[0].clientY);
     }
 }, {passive: false});
 
 document.addEventListener('touchmove', (e) => {
-    if (!isHighlighting) return;
+    if (!isHighlighting || interactionMode === 0) return;
     e.preventDefault(); // Detener el scroll nativo al pintar
     processHighlight(e.touches[0].clientX, e.touches[0].clientY);
 }, {passive: false});
@@ -573,6 +572,7 @@ document.addEventListener('mousemove', (e) => {
 document.addEventListener('mouseup', () => {
     finishHighlight();
 });
+
 
 
 
