@@ -547,3 +547,24 @@ window.addEventListener('contextmenu', (e) => {
 
 
 
+
+// Lógica para alternar entre Modo Leer y Modo Traducir
+const toggleModeBtn = document.getElementById('toggle-mode');
+let isTranslateMode = true;
+
+if (toggleModeBtn) {
+    toggleModeBtn.addEventListener('click', () => {
+        isTranslateMode = !isTranslateMode;
+        const textLayer = document.getElementById('text-layer');
+        if (isTranslateMode) {
+            toggleModeBtn.textContent = 'Modo: Traducir';
+            toggleModeBtn.style.background = 'var(--glow-color)';
+            if (textLayer) textLayer.style.pointerEvents = 'auto';
+        } else {
+            toggleModeBtn.textContent = 'Modo: Leer (Desplazamiento suave)';
+            toggleModeBtn.style.background = '#334155';
+            if (textLayer) textLayer.style.pointerEvents = 'none';
+            window.getSelection().removeAllRanges();
+        }
+    });
+}
