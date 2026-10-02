@@ -406,13 +406,24 @@ document.addEventListener('selectionchange', () => {
     }, 600); // 600ms debounce
 });
 
+document.addEventListener('touchmove', () => {
+    // Si el dedo se mueve (scrolling o arrastre), cancelamos el doble toque
+    lastTap = 0;
+}, {passive: true});
+
 document.addEventListener('touchend', (e) => {
     if (translationPanel.contains(e.target)) return;
+    
+    // Ignorar si hay múltiples dedos (zoom o gestos)
+    if (e.touches.length > 0 || e.changedTouches.length > 1) {
+        lastTap = 0;
+        return;
+    }
     
     const currentTime = new Date().getTime();
     const tapLength = currentTime - lastTap;
     
-    if (tapLength < 500 && tapLength > 0) {
+    if (tapLength < 300 && tapLength > 0) {
         if (e.target.tagName.toLowerCase() === 'span' && e.target.closest('.textLayer')) {
             e.preventDefault(); 
             
@@ -551,4 +562,5 @@ window.addEventListener('contextmenu', (e) => {
         e.preventDefault();
     }
 });
+
 
