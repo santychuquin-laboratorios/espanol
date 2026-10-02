@@ -564,39 +564,7 @@ function getWordRangeFromPoint(x, y) {
     return null;
 }
 
-document.addEventListener('touchstart', (e) => {
-    if (interactionMode === 3 && e.target.closest('.textLayer')) {
-        const currentTime = new Date().getTime();
-        const tapLength = currentTime - lastTapTime;
-        
-        if (tapLength < 600 && tapLength > 0) {
-            // Doble toque detectado
-            e.preventDefault();
-            const touch = e.touches[0];
-            const range = getWordRangeFromPoint(touch.clientX, touch.clientY);
-            
-            let textToTranslate = "";
-            if (range) {
-                const selection = window.getSelection();
-                selection.removeAllRanges();
-                selection.addRange(range);
-                textToTranslate = selection.toString().trim();
-            } else if (e.target.tagName.toLowerCase() === 'span') {
-                // Fallback: Si el navegador bloquea el caretRange, usamos el texto del span directamente
-                textToTranslate = e.target.textContent.trim();
-                // Destello morado para confirmar que se capturó
-                const originalBg = e.target.style.backgroundColor;
-                e.target.style.backgroundColor = 'rgba(168, 85, 247, 0.4)';
-                setTimeout(() => e.target.style.backgroundColor = originalBg, 800);
-            }
-            
-            if (textToTranslate) {
-                performTranslation(textToTranslate);
-            }
-        }
-        lastTapTime = currentTime;
-        return; // Salir para no mezclar con otros modos
-    }
+
     if (interactionMode === 0) return;
     
 
@@ -613,7 +581,36 @@ document.addEventListener('touchmove', (e) => {
     processHighlight(e.touches[0].clientX, e.touches[0].clientY);
 }, {passive: false});
 
-document.addEventListener('touchend', () => {
+document.addEventListener('touchend', (e) => {
+    if (interactionMode === 3 && e.target.closest('.textLayer')) {
+        const touch = e.changedTouches[0];
+        const dx = Math.abs(touch.clientX - tapStartX);
+        const dy = Math.abs(touch.clientY - tapStartY);
+        
+        // Si movió el dedo menos de 10px, se considera un "Toque" (Clic)
+        if (dx < 10 && dy < 10) {
+            e.preventDefault();
+            const range = getWordRangeFromPoint(touch.clientX, touch.clientY);
+            
+            let textToTranslate = "";
+            if (range) {
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+                textToTranslate = selection.toString().trim();
+            } else if (e.target.tagName.toLowerCase() === 'span') {
+                textToTranslate = e.target.textContent.trim();
+                const originalBg = e.target.style.backgroundColor;
+                e.target.style.backgroundColor = 'rgba(168, 85, 247, 0.4)';
+                setTimeout(() => e.target.style.backgroundColor = originalBg, 800);
+            }
+            
+            if (textToTranslate) {
+                performTranslation(textToTranslate);
+            }
+        }
+        return;
+    }
     finishHighlight();
 });
 
@@ -628,6 +625,7 @@ document.addEventListener('mousemove', (e) => {
 document.addEventListener('mouseup', () => {
     finishHighlight();
 });
+
 
 
 
