@@ -446,25 +446,104 @@ window.addEventListener('contextmenu', (e) => {
 
 
 
-// Lógica para alternar entre Modo Leer y Modo Traducir
+// Lógica para alternar entre Modo Leer y Modo Resaltador a mano alzada
 const toggleModeBtn = document.getElementById('toggle-mode');
-let isTranslateMode = true;
+let isHighlightMode = false;
+let isHighlighting = false;
+let highlightedSpans = new Set();
 
 if (toggleModeBtn) {
+    toggleModeBtn.textContent = 'Modo: Leer (Desplazamiento suave)';
+    toggleModeBtn.style.background = '#334155';
+    document.body.classList.remove('highlight-mode');
+
     toggleModeBtn.addEventListener('click', () => {
-        isTranslateMode = !isTranslateMode;
+        isHighlightMode = !isHighlightMode;
         const textLayer = document.getElementById('text-layer');
-        if (isTranslateMode) {
-            toggleModeBtn.textContent = 'Modo: Traducir';
+        if (isHighlightMode) {
+            toggleModeBtn.textContent = 'Modo: Resaltador (Mano alzada)';
             toggleModeBtn.style.background = 'var(--glow-color)';
+            document.body.classList.add('highlight-mode');
             if (textLayer) textLayer.style.pointerEvents = 'auto';
         } else {
             toggleModeBtn.textContent = 'Modo: Leer (Desplazamiento suave)';
             toggleModeBtn.style.background = '#334155';
+            document.body.classList.remove('highlight-mode');
             if (textLayer) textLayer.style.pointerEvents = 'none';
             window.getSelection().removeAllRanges();
+            clearHighlights();
         }
     });
 }
+
+function processHighlight(x, y) {
+    const el = document.elementFromPoint(x, y);
+    if (el && el.tagName.toLowerCase() === 'span' && el.closest('.textLayer')) {
+        el.classList.add('custom-highlight');
+        highlightedSpans.add(el);
+    }
+}
+
+function clearHighlights() {
+    highlightedSpans.forEach(el => el.classList.remove('custom-highlight'));
+    highlightedSpans.clear();
+}
+
+function finishHighlight() {
+    if (!isHighlighting) return;
+    isHighlighting = false;
+    
+    if (highlightedSpans.size > 0) {
+        const textArr = Array.from(highlightedSpans).map(span => span.textContent);
+        const text = textArr.join(' ').replace(/\s+/g, ' ').trim();
+        if (text) {
+            // Eliminar seleccion nativa por si acaso
+            window.getSelection().removeAllRanges();
+            performTranslation(text);
+        }
+    }
+}
+
+// Eventos Táctiles (Tablet)
+document.addEventListener('touchstart', (e) => {
+    if (!isHighlightMode) return;
+    if (e.target.closest('.textLayer')) {
+        isHighlighting = true;
+        clearHighlights();
+        processHighlight(e.touches[0].clientX, e.touches[0].clientY);
+    }
+}, {passive: false});
+
+document.addEventListener('touchmove', (e) => {
+    if (!isHighlighting) return;
+    e.preventDefault(); // Detener el scroll nativo al pintar
+    processHighlight(e.touches[0].clientX, e.touches[0].clientY);
+}, {passive: false});
+
+document.addEventListener('touchend', () => {
+    finishHighlight();
+});
+
+// Eventos de Mouse (Desktop opcional)
+document.addEventListener('mousedown', (e) => {
+    if (!isHighlightMode) return;
+    if (e.target.closest('.textLayer')) {
+        isHighlighting = true;
+        clearHighlights();
+        processHighlight(e.clientX, e.clientY);
+    }
+});
+
+document.addEventListener('mousemove', (e) => {
+    if (!isHighlighting) return;
+    e.preventDefault();
+    processHighlight(e.clientX, e.clientY);
+});
+
+document.addEventListener('mouseup', () => {
+    finishHighlight();
+});
+}
+
 
 
