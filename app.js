@@ -391,13 +391,38 @@ document.addEventListener('touchend', (e) => {
     if (tapLength < 500 && tapLength > 0) {
         if (e.target.tagName.toLowerCase() === 'span' && e.target.closest('.textLayer')) {
             e.preventDefault(); 
-            const wordRange = getWordRangeAtTouch(e);
+            
+            let wordRange = getWordRangeAtTouch(e);
+            
+            // Fallback: si falla la matemática exacta, selecciona solo la palabra clickeada aislando espacios
+            if (!wordRange) {
+                const textNode = e.target.firstChild;
+                if (textNode && textNode.nodeType === Node.TEXT_NODE) {
+                    const text = textNode.nodeValue;
+                    const match = text.match(/[a-zA-Z0-9_\u00C0-\u00FF']+/);
+                    if (match) {
+                        wordRange = document.createRange();
+                        wordRange.setStart(textNode, match.index);
+                        wordRange.setEnd(textNode, match.index + match[0].length);
+                    }
+                }
+            }
+
             if (wordRange) {
                 const selection = window.getSelection();
                 selection.removeAllRanges();
                 selection.addRange(wordRange);
                 setTimeout(() => translateSelectedText(), 50);
+            } else {
+                // Último recurso: seleccionar el span entero si todo falla
+                const range = document.createRange();
+                range.selectNodeContents(e.target);
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+                setTimeout(() => translateSelectedText(), 50);
             }
+            
             lastTap = 0;
             return;
         }
@@ -433,6 +458,20 @@ function getWordRangeAtTouch(e) {
     const text = node.nodeValue;
     let start = range.startOffset;
     let end = range.startOffset;
+    
+    // Si caímos en un espacio, tratar de ajustarnos a la palabra más cercana
+    if (!/[a-zA-Z0-9_\u00C0-\u00FF']/.test(text[start])) {
+        if (start > 0 && /[a-zA-Z0-9_\u00C0-\u00FF']/.test(text[start - 1])) {
+            start--;
+            end--;
+        } else if (end < text.length && /[a-zA-Z0-9_\u00C0-\u00FF']/.test(text[end + 1])) {
+            start++;
+            end++;
+        } else {
+            return null; // Cayó en espacio vacío
+        }
+    }
+
     while (start > 0 && /[a-zA-Z0-9_\u00C0-\u00FF']/.test(text[start - 1])) start--;
     while (end < text.length && /[a-zA-Z0-9_\u00C0-\u00FF']/.test(text[end])) end++;
     if (start === end) return null;
@@ -441,4 +480,35 @@ function getWordRangeAtTouch(e) {
     wordRange.setEnd(node, end);
     return wordRange;
 }
+
+function getWordRangeAtTouch(e) {
+    const touch = e.changedTouches[0];
+    const x = touch.clientX;
+    const y = touch.clientY;
+    let range;
+    if (document.caretRangeFromPoint) {
+        range = document.caretRangeFromPoint(x, y);
+    } else if (document.caretPositionFromPoint) {
+        const pos = document.caretPositionFromPoint(x, y);
+        if (pos) {
+            range = document.createRange();
+            range.setStart(pos.offsetNode, pos.offset);
+            range.collapse(true);
+        }
+    }
+    if (!range) return null;
+    const node = range.startContainer;
+    if (node.nodeType !== Node.TEXT_NODE) return null;
+    const text = node.nodeValue;
+    let start = range.startOffset;
+    let end = range.startOffset;
+    while (start > 0 && /[a-zA-Z0-9_\u00C0-\u00FF']/.test(text[start - 1])) start--;
+    while (end < text.length && /[a-zA-Z0-9_\u00C0-\u00FF']/.test(text[end])) end++;
+    if (start === end) return null;
+    const wordRange = document.createRange();
+    wordRange.setStart(node, start);
+    wordRange.setEnd(node, end);
+    return wordRange;
+}
+
 
