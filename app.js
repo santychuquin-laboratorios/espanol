@@ -543,7 +543,7 @@ document.addEventListener('mousemove', (e) => {
 document.addEventListener('mouseup', () => {
     finishHighlight();
 });
-}
+
 
 
 
