@@ -1,4 +1,4 @@
-﻿// Configurar la ruta del worker de PDF.js
+// Configurar la ruta del worker de PDF.js
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 const fileInput = document.getElementById('file-input');
@@ -292,19 +292,19 @@ async function performTranslation(text) {
         wordTranslation.textContent = "Traduciendo...";
         
         try {
-            const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(textToTranslate)}&langpair=en|es&de=santiago.edu@gmail.com`);
+            const response = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=es&dt=t&q=` + encodeURIComponent(textToTranslate));
             const data = await response.json();
             
-            if (data && data.responseData && data.responseData.translatedText) {
-                let translatedPart = data.responseData.translatedText;
+            if (data && data[0]) {
+                let translatedPart = data[0].map(item => item[0]).join('');
                 if (untranslatedText) {
                     const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                    wordTranslation.innerHTML = esc(translatedPart) + ' <span style="color: #94a3b8; font-style: italic;" title="Texto excede el lÃ­mite de 500 caracteres gratuitos"> ' + esc(untranslatedText) + '</span>';
+                    wordTranslation.innerHTML = esc(translatedPart) + ' <span style="color: #94a3b8; font-style: italic;" title="Texto excede el límite de 500 caracteres gratuitos"> ' + esc(untranslatedText) + '</span>';
                 } else {
                     wordTranslation.textContent = translatedPart;
                 }
             } else {
-                wordTranslation.textContent = "No se encontrÃ³ traducciÃ³n.";
+                wordTranslation.textContent = "No se encontró traducción.";
             }
         } catch (error) {
             console.error("Error al traducir:", error);
