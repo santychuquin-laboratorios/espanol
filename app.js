@@ -652,7 +652,7 @@ document.addEventListener('dblclick', (e) => {
 
 
 
-}
+
 
 const opacitySlider = document.getElementById('highlight-opacity');
 if (opacitySlider) {
@@ -675,6 +675,7 @@ quickColors.forEach(btn => {
         if (typeof setTool === 'function') setTool(1);
     });
 });
+
 
 
 
