@@ -448,6 +448,10 @@ window.addEventListener('contextmenu', (e) => {
 
 
 // Lógica para alternar entre Modo Leer y Modo Resaltador a mano alzada
+let interactionMode = 0;
+let isHighlighting = false;
+let isErasing = false;
+let highlightedSpans = new Set();
 const toolRead = document.getElementById('tool-read');
 const toolHighlight = document.getElementById('tool-highlight');
 const toolErase = document.getElementById('tool-erase');
@@ -568,6 +572,7 @@ document.addEventListener('mousemove', (e) => {
 document.addEventListener('mouseup', () => {
     finishHighlight();
 });
+
 
 
 
