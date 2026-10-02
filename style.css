@@ -433,10 +433,9 @@ input[type='color']::-webkit-color-swatch {
     pointer-events: auto !important;
 }
 .custom-highlight {
-    background-color: var(--highlight-color) !important;
-    color: #fff !important;
-    border-radius: 3px;
-    opacity: 0.8;
+    background-color: rgba(255, 235, 59, 0.4) !important; /* Menos opaco para ver el lienzo debajo */
+    color: transparent !important; /* Mantener el texto invisible para no crear sombras dobles */
+    border-radius: 4px;
 }
 
 /* Tablet Tools Active States */
@@ -445,3 +444,4 @@ input[type='color']::-webkit-color-swatch {
 #tool-erase.active { background-color: #ef4444 !important; }
 
 #tool-tap.active { background-color: #a855f7 !important; } /* Morado */
+
