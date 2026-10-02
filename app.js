@@ -1,4 +1,4 @@
-// Configurar la ruta del worker de PDF.js
+﻿// Configurar la ruta del worker de PDF.js
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 const fileInput = document.getElementById('file-input');
@@ -75,11 +75,11 @@ function loadPDFData(arrayBuffer, initialPage = 1) {
             renderPage(pageNum);
         }).catch(err => {
             console.error('Error al cargar PDF:', err);
-            alert('Error al procesar el archivo PDF. AsegÃºrate de que no estÃ© daÃ±ado.');
+            alert('Error al procesar el archivo PDF. AsegÃƒÂºrate de que no estÃƒÂ© daÃƒÂ±ado.');
         });
     } catch (err) {
         console.error('Error al iniciar lectura:', err);
-        alert('OcurriÃ³ un error al intentar leer el archivo.');
+        alert('OcurriÃƒÂ³ un error al intentar leer el archivo.');
     }
 }
 
@@ -105,7 +105,7 @@ async function loadLastPDF() {
     }
 }
 
-// Cargar al iniciar la pÃ¡gina
+// Cargar al iniciar la pÃƒÂ¡gina
 loadLastPDF();
 
 // Escuchar la subida de un archivo nuevo
@@ -114,7 +114,7 @@ fileInput.addEventListener('change', (e) => {
     if (!file) return;
 
     if (!file.type.includes('pdf') && !file.name.toLowerCase().endsWith('.pdf')) {
-        alert('Por favor, sube un archivo PDF vÃ¡lido.');
+        alert('Por favor, sube un archivo PDF vÃƒÂ¡lido.');
         return;
     }
 
@@ -131,7 +131,7 @@ fileInput.addEventListener('change', (e) => {
     fileReader.readAsArrayBuffer(file);
 });
 
-// FunciÃ³n para renderizar una pÃ¡gina del PDF
+// FunciÃƒÂ³n para renderizar una pÃƒÂ¡gina del PDF
 function renderPage(num) {
     pageIsRendering = true;
 
@@ -299,12 +299,12 @@ async function performTranslation(text) {
                 let translatedPart = data[0].map(item => item[0]).join('');
                 if (untranslatedText) {
                     const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                    wordTranslation.innerHTML = esc(translatedPart) + ' <span style="color: #94a3b8; font-style: italic;" title="Texto excede el límite de 500 caracteres gratuitos"> ' + esc(untranslatedText) + '</span>';
+                    wordTranslation.innerHTML = esc(translatedPart) + ' <span style="color: #94a3b8; font-style: italic;" title="Texto excede el lÃ­mite de 500 caracteres gratuitos"> ' + esc(untranslatedText) + '</span>';
                 } else {
                     wordTranslation.textContent = translatedPart;
                 }
             } else {
-                wordTranslation.textContent = "No se encontró traducción.";
+                wordTranslation.textContent = "No se encontrÃ³ traducciÃ³n.";
             }
         } catch (error) {
             console.error("Error al traducir:", error);
@@ -327,7 +327,7 @@ wordOriginal.addEventListener('keydown', (e) => {
         e.preventDefault();
         let text = wordOriginal.textContent.trim();
         text = text.replace(/\s+/g, ' ');
-        if (text.length > 0 && text !== "Selecciona un texto para traducir..." && text !== "Escribe aquÃ­ para traducir...") {
+        if (text.length > 0 && text !== "Selecciona un texto para traducir..." && text !== "Escribe aquÃƒÂ­ para traducir...") {
             performTranslation(text);
             wordOriginal.blur();
         }
@@ -335,14 +335,14 @@ wordOriginal.addEventListener('keydown', (e) => {
 });
 
 wordOriginal.addEventListener('focus', () => {
-    if (wordOriginal.textContent.trim() === "Selecciona un texto para traducir..." || wordOriginal.textContent.trim() === "Escribe aquÃ­ para traducir...") {
+    if (wordOriginal.textContent.trim() === "Selecciona un texto para traducir..." || wordOriginal.textContent.trim() === "Escribe aquÃƒÂ­ para traducir...") {
         wordOriginal.textContent = "";
     }
 });
 
 wordOriginal.addEventListener('blur', () => {
     if (wordOriginal.textContent.trim() === "") {
-        wordOriginal.textContent = "Escribe aquÃ­ para traducir...";
+        wordOriginal.textContent = "Escribe aquÃƒÂ­ para traducir...";
     }
 });
 
@@ -459,14 +459,7 @@ document.addEventListener('touchend', (e) => {
     }, 400);
 });
 
-// Hack to prevent Google Tap to Search natively:
 
-textLayerDiv.setAttribute('contenteditable', 'true');
-textLayerDiv.setAttribute('inputmode', 'none');
-textLayerDiv.setAttribute('spellcheck', 'false');
-textLayerDiv.addEventListener('keydown', e => e.preventDefault());
-textLayerDiv.addEventListener('paste', e => e.preventDefault());
-textLayerDiv.addEventListener('cut', e => e.preventDefault());
 
 function getWordRangeAtTouch(e) {
     const touch = e.changedTouches[0];
@@ -490,7 +483,7 @@ function getWordRangeAtTouch(e) {
     let start = range.startOffset;
     let end = range.startOffset;
     
-    // Si caímos en un espacio, tratar de ajustarnos a la palabra más cercana
+    // Si caÃ­mos en un espacio, tratar de ajustarnos a la palabra mÃ¡s cercana
     if (!/[a-zA-Z0-9_\u00C0-\u00FF']/.test(text[start])) {
         if (start > 0 && /[a-zA-Z0-9_\u00C0-\u00FF']/.test(text[start - 1])) {
             start--;
@@ -499,7 +492,7 @@ function getWordRangeAtTouch(e) {
             start++;
             end++;
         } else {
-            return null; // Cayó en espacio vacío
+            return null; // CayÃ³ en espacio vacÃ­o
         }
     }
 
@@ -541,6 +534,7 @@ function getWordRangeAtTouch(e) {
     wordRange.setEnd(node, end);
     return wordRange;
 }
+
 
 
 
