@@ -669,9 +669,10 @@ quickColors.forEach(btn => {
         if (typeof colorPicker !== 'undefined' && colorPicker) colorPicker.value = currentHighlightHex;
         if (typeof updateHighlightColor === 'function') updateHighlightColor();
         
-        if (typeof setTool === 'function') setTool(1);
+        if (typeof setTool === 'function' && (('ontouchstart' in window) || (navigator.maxTouchPoints > 0))) setTool(1);
     });
 });
+
 
 
 
