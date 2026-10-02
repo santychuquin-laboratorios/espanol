@@ -433,6 +433,18 @@ document.addEventListener('touchend', (e) => {
         const selection = window.getSelection();
         if (selection.toString().trim().length > 0) {
             translateSelectedText();
+            
+            // Truco para evitar el recuadro de Google en tablets:
+            // Borramos la selección nativa y la recreamos por código.
+            // Las selecciones por código no activan el "Tap to Search" de Google.
+            const ranges = [];
+            for (let i = 0; i < selection.rangeCount; i++) {
+                ranges.push(selection.getRangeAt(i));
+            }
+            selection.removeAllRanges();
+            setTimeout(() => {
+                ranges.forEach(r => selection.addRange(r));
+            }, 50);
         }
     }, 300);
 });
@@ -510,5 +522,6 @@ function getWordRangeAtTouch(e) {
     wordRange.setEnd(node, end);
     return wordRange;
 }
+
 
 
