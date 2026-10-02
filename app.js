@@ -453,6 +453,7 @@ let isHighlighting = false;
 let isErasing = false;
 let highlightedSpans = new Set();
 const toolRead = document.getElementById('tool-read');
+const toolTap = document.getElementById('tool-tap');
 const toolHighlight = document.getElementById('tool-highlight');
 const toolErase = document.getElementById('tool-erase');
 const tabletTools = document.getElementById('tablet-tools');
@@ -469,6 +470,7 @@ function setTool(mode) {
     if (toolRead) toolRead.classList.toggle('active', mode === 0);
     if (toolHighlight) toolHighlight.classList.toggle('active', mode === 1);
     if (toolErase) toolErase.classList.toggle('active', mode === 2);
+    if (toolTap) toolTap.classList.toggle('active', mode === 3);
 
     if (mode === 0) {
         document.body.classList.remove('highlight-mode');
@@ -483,6 +485,7 @@ function setTool(mode) {
 if (toolRead) toolRead.addEventListener('click', () => setTool(0));
 if (toolHighlight) toolHighlight.addEventListener('click', () => setTool(1));
 if (toolErase) toolErase.addEventListener('click', () => setTool(2));
+if (toolTap) toolTap.addEventListener('click', () => setTool(3));
 
 // Al renderizar una página nueva, restauramos el estado del pointerEvents
 
@@ -544,6 +547,33 @@ if (btnClearHighlight) {
 // Eventos Táctiles (Tablet)
 document.addEventListener('touchstart', (e) => {
     if (interactionMode === 0) return;
+    
+    if (interactionMode === 3 && e.target.closest('.textLayer')) {
+        const touch = e.touches[0];
+        if (document.caretRangeFromPoint) {
+            const range = document.caretRangeFromPoint(touch.clientX, touch.clientY);
+            if (range && range.startContainer.nodeType === Node.TEXT_NODE) {
+                const node = range.startContainer;
+                const offset = range.startOffset;
+                const text = node.nodeValue;
+                let start = offset;
+                while (start > 0 && /\w|[\u00C0-\u00FF']/.test(text[start - 1])) start--;
+                let end = offset;
+                while (end < text.length && /\w|[\u00C0-\u00FF']/.test(text[end])) end++;
+                
+                if (start < end) {
+                    const wordRange = document.createRange();
+                    wordRange.setStart(node, start);
+                    wordRange.setEnd(node, end);
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(wordRange);
+                    setTimeout(() => translateSelectedText(), 50);
+                }
+            }
+        }
+        return;
+    }
     if (e.target.closest('.textLayer')) {
         isHighlighting = true;
         isErasing = (interactionMode === 2);
@@ -572,6 +602,7 @@ document.addEventListener('mousemove', (e) => {
 document.addEventListener('mouseup', () => {
     finishHighlight();
 });
+
 
 
 

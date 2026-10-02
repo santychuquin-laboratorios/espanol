@@ -443,3 +443,5 @@ input[type='color']::-webkit-color-swatch {
 #tool-read.active { background-color: #2563eb !important; }
 #tool-highlight.active { background-color: #eab308 !important; }
 #tool-erase.active { background-color: #ef4444 !important; }
+
+#tool-tap.active { background-color: #a855f7 !important; } /* Morado */
