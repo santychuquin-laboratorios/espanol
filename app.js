@@ -564,10 +564,17 @@ function getWordRangeFromPoint(x, y) {
     return null;
 }
 
+let tapStartX = 0;
+let tapStartY = 0;
 
-    if (interactionMode === 0) return;
+document.addEventListener('touchstart', (e) => {
+    if (interactionMode === 3 && e.target.closest('.textLayer')) {
+        tapStartX = e.touches[0].clientX;
+        tapStartY = e.touches[0].clientY;
+        return;
+    }
     
-
+    if (interactionMode === 0) return;
     if (e.target.closest('.textLayer')) {
         isHighlighting = true;
         isErasing = (interactionMode === 2);
