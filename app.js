@@ -359,31 +359,285 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-let currentHighlightHex = '#ffeb3b';
-let currentHighlightOpacity = 0.65;
-
-function updateHighlightColor() {
-    const r = parseInt(currentHighlightHex.slice(1, 3), 16);
-    const g = parseInt(currentHighlightHex.slice(3, 5), 16);
-    const b = parseInt(currentHighlightHex.slice(5, 7), 16);
-    document.documentElement.style.setProperty('--highlight-color', `rgba(${r}, , , )`);
-}
-
 const colorPicker = document.getElementById('highlight-color');
-if (colorPicker) {
-    colorPicker.addEventListener('input', (e) => {
-        currentHighlightHex = e.target.value;
-        updateHighlightColor();
+colorPicker.addEventListener('input', (e) => {
+    const hex = e.target.value;
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    document.documentElement.style.setProperty('--highlight-color', `rgba(${r}, ${g}, ${b}, 0.65)`);
+});
+
+window.addEventListener('resize', () => {
+    if (pdfDoc && !pageIsRendering) {
+        clearTimeout(window.resizeTimer);
+        window.resizeTimer = setTimeout(() => {
+            renderPage(pageNum);
+        }, 300);
+    }
+});
+
+let lastTap = 0;
+let isTouchInteraction = false;
+
+document.addEventListener('touchstart', () => {
+    isTouchInteraction = true;
+}, {passive: true});
+
+document.addEventListener('mousedown', () => {
+    isTouchInteraction = false;
+}, {passive: true});
+
+let selectionTimeout = null;
+document.addEventListener('selectionchange', () => {
+    if (!isTouchInteraction) return;
+    
+    clearTimeout(selectionTimeout);
+    selectionTimeout = setTimeout(() => {
+        const selection = window.getSelection();
+        if (selection.toString().trim().length > 0) {
+            translateSelectedText();
+        }
+    }, 600); // 600ms debounce
+});
+
+
+
+document.addEventListener('touchend', (e) => {
+    if (translationPanel.contains(e.target)) return;
+    setTimeout(() => {
+        const selection = window.getSelection();
+        if (selection.toString().trim().length > 0) {
+            translateSelectedText();
+        }
+    }, 400);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+window.addEventListener('contextmenu', (e) => {
+    if (isTouchInteraction) {
+        e.preventDefault();
+    }
+});
+
+
+
+
+
+
+// Lógica para alternar entre Modo Leer y Modo Resaltador a mano alzada
+let interactionMode = 0;
+let isHighlighting = false;
+let isErasing = false;
+let highlightedSpans = new Set();
+const toolRead = document.getElementById('tool-read');
+const toolHighlight = document.getElementById('tool-highlight');
+const toolErase = document.getElementById('tool-erase');
+const tabletTools = document.getElementById('tablet-tools');
+
+const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+if (!isTouchDevice) {
+    if (tabletTools) tabletTools.style.display = 'none';
+    const quickColorsDiv = document.getElementById('quick-colors');
+    if (quickColorsDiv) quickColorsDiv.style.display = 'none';
+}
+
+function setTool(mode) {
+    interactionMode = mode;
+    const textLayer = document.getElementById('text-layer');
+    
+    if (toolRead) toolRead.classList.toggle('active', mode === 0);
+    if (toolHighlight) toolHighlight.classList.toggle('active', mode === 1);
+    if (toolErase) toolErase.classList.toggle('active', mode === 2);
+
+    if (mode === 0) {
+        document.body.classList.remove('highlight-mode');
+        if (textLayer) textLayer.style.pointerEvents = isTouchDevice ? 'none' : 'auto';
+        window.getSelection().removeAllRanges();
+    } else {
+        document.body.classList.add('highlight-mode');
+        if (textLayer) textLayer.style.pointerEvents = 'auto';
+    }
+}
+
+if (toolRead) toolRead.addEventListener('click', () => setTool(0));
+if (toolHighlight) toolHighlight.addEventListener('click', () => setTool(1));
+if (toolErase) toolErase.addEventListener('click', () => setTool(2));
+
+// Al renderizar una página nueva, restauramos el estado del pointerEvents
+
+function processHighlight(x, y) {
+    const el = document.elementFromPoint(x, y);
+    if (el && el.tagName.toLowerCase() === 'span' && el.closest('.textLayer')) {
+        if (isErasing) {
+            el.classList.remove('custom-highlight');
+            highlightedSpans.delete(el);
+        } else {
+            el.classList.add('custom-highlight');
+            highlightedSpans.add(el);
+        }
+    }
+}
+
+function clearHighlights() {
+    highlightedSpans.forEach(el => el.classList.remove('custom-highlight'));
+    highlightedSpans.clear();
+}
+
+function finishHighlight() {
+    if (!isHighlighting) return;
+    isHighlighting = false;
+    
+    if (highlightedSpans.size > 0) {
+        const highlightActions = document.getElementById('highlight-actions');
+        if (highlightActions) highlightActions.style.display = 'flex';
+    }
+}
+
+const btnTranslateHighlight = document.getElementById('btn-translate-highlight');
+const btnClearHighlight = document.getElementById('btn-clear-highlight');
+
+if (btnTranslateHighlight) {
+    btnTranslateHighlight.addEventListener('click', () => {
+        if (highlightedSpans.size > 0) {
+            const textArr = Array.from(highlightedSpans).map(span => span.textContent);
+            const text = textArr.join(' ').replace(/\s+/g, ' ').trim();
+            if (text) {
+                window.getSelection().removeAllRanges();
+                performTranslation(text);
+            }
+        }
     });
 }
 
-const opacitySlider = document.getElementById('highlight-opacity');
-if (opacitySlider) {
-    opacitySlider.addEventListener('input', (e) => {
-        currentHighlightOpacity = e.target.value;
-        updateHighlightColor();
+if (btnClearHighlight) {
+    btnClearHighlight.addEventListener('click', () => {
+        clearHighlights();
+        // Auto-seleccionar la Mano (Leer) al limpiar en dispositivos táctiles
+        if (typeof setTool === 'function') setTool(0);
+            const ha = document.getElementById('highlight-actions'); if(ha) ha.style.display = 'none';
+        const highlightActions = document.getElementById('highlight-actions');
+        if (highlightActions) highlightActions.style.display = 'none';
+        wordTranslation.textContent = '';
+        wordOriginal.textContent = 'Selecciona un texto para traducir...';
     });
 }
+
+// Eventos Táctiles (Tablet)
+let lastTapTime = 0;
+
+function getWordRangeFromPoint(x, y) {
+    if (!document.caretRangeFromPoint) return null;
+    const range = document.caretRangeFromPoint(x, y);
+    if (!range || range.startContainer.nodeType !== Node.TEXT_NODE) return null;
+    
+    const node = range.startContainer;
+    const offset = range.startOffset;
+    const text = node.nodeValue;
+    
+    let start = offset;
+    while (start > 0 && /\w|[\u00C0-\u00FF']/.test(text[start - 1])) start--;
+    let end = offset;
+    while (end < text.length && /\w|[\u00C0-\u00FF']/.test(text[end])) end++;
+    
+    if (start < end) {
+        const wordRange = document.createRange();
+        wordRange.setStart(node, start);
+        wordRange.setEnd(node, end);
+        return wordRange;
+    }
+    return null;
+}
+
+let tapStartX = 0;
+let tapStartY = 0;
+
+document.addEventListener('touchstart', (e) => {
+
+    
+    if (interactionMode === 0) return;
+    if (e.target.closest('.textLayer')) {
+        isHighlighting = true;
+        isErasing = (interactionMode === 2);
+        processHighlight(e.touches[0].clientX, e.touches[0].clientY);
+    }
+}, {passive: false});
+
+document.addEventListener('touchmove', (e) => {
+    if (!isHighlighting || interactionMode === 0) return;
+    e.preventDefault(); // Detener el scroll nativo al pintar
+    processHighlight(e.touches[0].clientX, e.touches[0].clientY);
+}, {passive: false});
+
+document.addEventListener('touchend', (e) => {
+
+    finishHighlight();
+});
+
+
+
+document.addEventListener('mousemove', (e) => {
+    if (!isHighlighting) return;
+    e.preventDefault();
+    processHighlight(e.clientX, e.clientY);
+});
+
+document.addEventListener('mouseup', () => {
+    finishHighlight();
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+document.addEventListener('dblclick', (e) => {
+    const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    if (!isTouchDevice && e.target.closest('.textLayer')) {
+        setTimeout(() => {
+            const selection = window.getSelection();
+            const text = selection.toString().trim();
+            if (text) {
+                performTranslation(text);
+            }
+        }, 50);
+    }
+});
+
+
 
 const quickColors = document.querySelectorAll('.color-preset');
 quickColors.forEach(btn => {
@@ -391,15 +645,16 @@ quickColors.forEach(btn => {
         quickColors.forEach(b => b.style.borderColor = 'transparent');
         e.target.style.borderColor = 'white';
         
-        currentHighlightHex = e.target.getAttribute('data-color');
-        if (colorPicker) colorPicker.value = currentHighlightHex;
-        updateHighlightColor();
+        const hex = e.target.getAttribute('data-color');
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        document.documentElement.style.setProperty('--highlight-color', `rgba(${r}, ${g}, ${b}, 0.65)`);
         
         // Auto-seleccionar la herramienta de Pincel
         setTool(1);
     });
 });
-
 
 
 
