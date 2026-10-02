@@ -180,38 +180,12 @@ function renderPage(num) {
             
             return page.getTextContent();
         }).then(textContent => {
-            const layerRender = pdfjsLib.renderTextLayer({
+            pdfjsLib.renderTextLayer({
                 textContentSource: textContent,
                 container: textLayerDiv,
                 viewport: viewport,
                 textDivs: []
             });
-            
-            const processSpans = () => {
-                const spans = textLayerDiv.querySelectorAll('span:not(.highlightable-word)');
-                spans.forEach(span => {
-                    if (span.children.length === 0 && span.textContent.trim().includes(' ')) {
-                        const words = span.textContent.split(/(\s+)/);
-                        span.innerHTML = '';
-                        words.forEach(word => {
-                            if (word.trim().length > 0) {
-                                const wordSpan = document.createElement('span');
-                                wordSpan.className = 'highlightable-word';
-                                wordSpan.textContent = word;
-                                span.appendChild(wordSpan);
-                            } else {
-                                span.appendChild(document.createTextNode(word));
-                            }
-                        });
-                    }
-                });
-            };
-            
-            if (layerRender && layerRender.promise) {
-                layerRender.promise.then(processSpans);
-            } else {
-                setTimeout(processSpans, 400);
-            }
         });
 
         pageNumDisplay.textContent = num;
@@ -510,25 +484,13 @@ if (toolErase) toolErase.addEventListener('click', () => setTool(2));
 
 function processHighlight(x, y) {
     const el = document.elementFromPoint(x, y);
-    if (!el) return;
-    
-    let targetEl = null;
-    
-    if (el.classList.contains('highlightable-word')) {
-        targetEl = el;
-    } else if (el.tagName.toLowerCase() === 'span' && el.closest('.textLayer')) {
-        // Evitar resaltar el contenedor padre (toda la fila) si tocamos un espacio en blanco
-        if (el.querySelector('.highlightable-word')) return;
-        targetEl = el;
-    }
-    
-    if (targetEl) {
+    if (el && el.tagName.toLowerCase() === 'span' && el.closest('.textLayer')) {
         if (isErasing) {
-            targetEl.classList.remove('custom-highlight');
-            highlightedSpans.delete(targetEl);
+            el.classList.remove('custom-highlight');
+            highlightedSpans.delete(el);
         } else {
-            targetEl.classList.add('custom-highlight');
-            highlightedSpans.add(targetEl);
+            el.classList.add('custom-highlight');
+            highlightedSpans.add(el);
         }
     }
 }
@@ -691,6 +653,7 @@ quickColors.forEach(btn => {
         setTool(1);
     });
 });
+
 
 
 
