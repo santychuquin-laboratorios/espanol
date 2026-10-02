@@ -6,7 +6,7 @@
     --text-main: #f8fafc; /* Texto blanco/gris claro */
     --text-muted: #94a3b8;
     --border: #334155;
-    --highlight-color: rgba(255, 235, 59, 0.85); /* Amarillo por defecto (menos transparente) */
+    --highlight-color: rgba(255, 235, 59, 0.45); /* Amarillo por defecto (menos transparente) */
 }
 
 body {
@@ -433,7 +433,7 @@ input[type='color']::-webkit-color-swatch {
     pointer-events: auto !important;
 }
 .custom-highlight {
-    background-color: rgba(255, 235, 59, 0.4) !important; /* Menos opaco para ver el lienzo debajo */
+    background-color: var(--highlight-color) !important; /* Menos opaco para ver el lienzo debajo */
     color: transparent !important; /* Mantener el texto invisible para no crear sombras dobles */
     border-radius: 4px;
 }
@@ -444,4 +444,5 @@ input[type='color']::-webkit-color-swatch {
 #tool-erase.active { background-color: #ef4444 !important; }
 
 #tool-tap.active { background-color: #a855f7 !important; } /* Morado */
+
 
