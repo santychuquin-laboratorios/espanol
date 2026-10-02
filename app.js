@@ -448,6 +448,10 @@ window.addEventListener('contextmenu', (e) => {
 
 // Lógica para alternar entre Modo Leer y Modo Resaltador a mano alzada
 const toggleModeBtn = document.getElementById('toggle-mode');
+const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+if (!isTouchDevice && toggleModeBtn) {
+    toggleModeBtn.style.display = 'none'; // Ocultar en PC
+}
 let isHighlightMode = false;
 let isHighlighting = false;
 let highlightedSpans = new Set();
@@ -524,15 +528,7 @@ document.addEventListener('touchend', () => {
     finishHighlight();
 });
 
-// Eventos de Mouse (Desktop opcional)
-document.addEventListener('mousedown', (e) => {
-    if (!isHighlightMode) return;
-    if (e.target.closest('.textLayer')) {
-        isHighlighting = true;
-        clearHighlights();
-        processHighlight(e.clientX, e.clientY);
-    }
-});
+
 
 document.addEventListener('mousemove', (e) => {
     if (!isHighlighting) return;
@@ -543,6 +539,7 @@ document.addEventListener('mousemove', (e) => {
 document.addEventListener('mouseup', () => {
     finishHighlight();
 });
+
 
 
 
