@@ -476,6 +476,7 @@ if (toggleModeBtn) {
             if (textLayer) textLayer.style.pointerEvents = 'none';
             window.getSelection().removeAllRanges();
             clearHighlights();
+            const ha = document.getElementById('highlight-actions'); if(ha) ha.style.display = 'none';
         }
     });
 }
@@ -498,14 +499,36 @@ function finishHighlight() {
     isHighlighting = false;
     
     if (highlightedSpans.size > 0) {
-        const textArr = Array.from(highlightedSpans).map(span => span.textContent);
-        const text = textArr.join(' ').replace(/\s+/g, ' ').trim();
-        if (text) {
-            // Eliminar seleccion nativa por si acaso
-            window.getSelection().removeAllRanges();
-            performTranslation(text);
-        }
+        const highlightActions = document.getElementById('highlight-actions');
+        if (highlightActions) highlightActions.style.display = 'flex';
     }
+}
+
+const btnTranslateHighlight = document.getElementById('btn-translate-highlight');
+const btnClearHighlight = document.getElementById('btn-clear-highlight');
+
+if (btnTranslateHighlight) {
+    btnTranslateHighlight.addEventListener('click', () => {
+        if (highlightedSpans.size > 0) {
+            const textArr = Array.from(highlightedSpans).map(span => span.textContent);
+            const text = textArr.join(' ').replace(/\s+/g, ' ').trim();
+            if (text) {
+                window.getSelection().removeAllRanges();
+                performTranslation(text);
+            }
+        }
+    });
+}
+
+if (btnClearHighlight) {
+    btnClearHighlight.addEventListener('click', () => {
+        clearHighlights();
+            const ha = document.getElementById('highlight-actions'); if(ha) ha.style.display = 'none';
+        const highlightActions = document.getElementById('highlight-actions');
+        if (highlightActions) highlightActions.style.display = 'none';
+        wordTranslation.textContent = '';
+        wordOriginal.textContent = 'Selecciona un texto para traducir...';
+    });
 }
 
 // Eventos Táctiles (Tablet)
@@ -513,7 +536,7 @@ document.addEventListener('touchstart', (e) => {
     if (!isHighlightMode) return;
     if (e.target.closest('.textLayer')) {
         isHighlighting = true;
-        clearHighlights();
+        // Ya no limpiamos aquí para permitir múltiples trazos
         processHighlight(e.touches[0].clientX, e.touches[0].clientY);
     }
 }, {passive: false});
@@ -539,6 +562,7 @@ document.addEventListener('mousemove', (e) => {
 document.addEventListener('mouseup', () => {
     finishHighlight();
 });
+
 
 
 
