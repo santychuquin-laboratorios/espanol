@@ -429,19 +429,6 @@ document.addEventListener('touchend', (e) => {
             
             let wordRange = getWordRangeAtTouch(e);
             
-            if (!wordRange) {
-                const textNode = e.target.firstChild;
-                if (textNode && textNode.nodeType === Node.TEXT_NODE) {
-                    const text = textNode.nodeValue;
-                    const match = text.match(/[a-zA-Z0-9_\u00C0-\u00FF']+/);
-                    if (match) {
-                        wordRange = document.createRange();
-                        wordRange.setStart(textNode, match.index);
-                        wordRange.setEnd(textNode, match.index + match[0].length);
-                    }
-                }
-            }
-
             if (wordRange) {
                 const selection = window.getSelection();
                 selection.removeAllRanges();
@@ -562,5 +549,6 @@ window.addEventListener('contextmenu', (e) => {
         e.preventDefault();
     }
 });
+
 
 
