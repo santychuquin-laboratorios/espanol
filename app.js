@@ -4,7 +4,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs
 const fileInput = document.getElementById('file-input');
 const canvas = document.getElementById('pdf-render');
 const ctx = canvas.getContext('2d');
-const textLayerDiv = document.getElementById('text-layer');
+
 const translationPanel = document.getElementById('translation-panel');
 const wordOriginal = document.getElementById('word-original');
 const wordTranslation = document.getElementById('word-translation');
@@ -447,7 +447,7 @@ document.addEventListener('touchend', (e) => {
 });
 
 // Hack to prevent Google Tap to Search natively:
-const textLayerDiv = document.getElementById('text-layer');
+
 textLayerDiv.setAttribute('contenteditable', 'true');
 textLayerDiv.setAttribute('inputmode', 'none');
 textLayerDiv.setAttribute('spellcheck', 'false');
@@ -528,6 +528,7 @@ function getWordRangeAtTouch(e) {
     wordRange.setEnd(node, end);
     return wordRange;
 }
+
 
 
 
