@@ -639,22 +639,28 @@ document.addEventListener('dblclick', (e) => {
 
 
 
+const opacitySlider = document.getElementById('highlight-opacity');
+if (opacitySlider) {
+    opacitySlider.addEventListener('input', (e) => {
+        currentHighlightOpacity = e.target.value;
+        updateHighlightColor();
+    });
+}
+
 const quickColors = document.querySelectorAll('.color-preset');
 quickColors.forEach(btn => {
     btn.addEventListener('click', (e) => {
         quickColors.forEach(b => b.style.borderColor = 'transparent');
         e.target.style.borderColor = 'white';
         
-        const hex = e.target.getAttribute('data-color');
-        const r = parseInt(hex.slice(1, 3), 16);
-        const g = parseInt(hex.slice(3, 5), 16);
-        const b = parseInt(hex.slice(5, 7), 16);
-        document.documentElement.style.setProperty('--highlight-color', `rgba(${r}, ${g}, ${b}, 0.65)`);
+        currentHighlightHex = e.target.getAttribute('data-color');
+        if (colorPicker) colorPicker.value = currentHighlightHex;
+        updateHighlightColor();
         
-        // Auto-seleccionar la herramienta de Pincel
         setTool(1);
     });
 });
+
 
 
 
