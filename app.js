@@ -420,79 +420,9 @@ document.addEventListener('touchend', (e) => {
 
 
 
-function getWordRangeAtTouch(e) {
-    const touch = e.changedTouches[0];
-    const x = touch.clientX;
-    const y = touch.clientY;
-    let range;
-    if (document.caretRangeFromPoint) {
-        range = document.caretRangeFromPoint(x, y);
-    } else if (document.caretPositionFromPoint) {
-        const pos = document.caretPositionFromPoint(x, y);
-        if (pos) {
-            range = document.createRange();
-            range.setStart(pos.offsetNode, pos.offset);
-            range.collapse(true);
-        }
-    }
-    if (!range) return null;
-    const node = range.startContainer;
-    if (node.nodeType !== Node.TEXT_NODE) return null;
-    const text = node.nodeValue;
-    let start = range.startOffset;
-    let end = range.startOffset;
-    
-    // Si caÃ­mos en un espacio, tratar de ajustarnos a la palabra mÃ¡s cercana
-    if (!/[a-zA-Z0-9_\u00C0-\u00FF']/.test(text[start])) {
-        if (start > 0 && /[a-zA-Z0-9_\u00C0-\u00FF']/.test(text[start - 1])) {
-            start--;
-            end--;
-        } else if (end < text.length && /[a-zA-Z0-9_\u00C0-\u00FF']/.test(text[end + 1])) {
-            start++;
-            end++;
-        } else {
-            return null; // CayÃ³ en espacio vacÃ­o
-        }
-    }
 
-    while (start > 0 && /[a-zA-Z0-9_\u00C0-\u00FF']/.test(text[start - 1])) start--;
-    while (end < text.length && /[a-zA-Z0-9_\u00C0-\u00FF']/.test(text[end])) end++;
-    if (start === end) return null;
-    const wordRange = document.createRange();
-    wordRange.setStart(node, start);
-    wordRange.setEnd(node, end);
-    return wordRange;
-}
 
-function getWordRangeAtTouch(e) {
-    const touch = e.changedTouches[0];
-    const x = touch.clientX;
-    const y = touch.clientY;
-    let range;
-    if (document.caretRangeFromPoint) {
-        range = document.caretRangeFromPoint(x, y);
-    } else if (document.caretPositionFromPoint) {
-        const pos = document.caretPositionFromPoint(x, y);
-        if (pos) {
-            range = document.createRange();
-            range.setStart(pos.offsetNode, pos.offset);
-            range.collapse(true);
-        }
-    }
-    if (!range) return null;
-    const node = range.startContainer;
-    if (node.nodeType !== Node.TEXT_NODE) return null;
-    const text = node.nodeValue;
-    let start = range.startOffset;
-    let end = range.startOffset;
-    while (start > 0 && /[a-zA-Z0-9_\u00C0-\u00FF']/.test(text[start - 1])) start--;
-    while (end < text.length && /[a-zA-Z0-9_\u00C0-\u00FF']/.test(text[end])) end++;
-    if (start === end) return null;
-    const wordRange = document.createRange();
-    wordRange.setStart(node, start);
-    wordRange.setEnd(node, end);
-    return wordRange;
-}
+
 
 
 
@@ -536,4 +466,5 @@ if (toggleModeBtn) {
         }
     });
 }
+
 
