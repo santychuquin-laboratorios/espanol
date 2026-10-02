@@ -434,8 +434,8 @@ document.addEventListener('touchend', (e) => {
                 selection.removeAllRanges();
                 selection.addRange(wordRange);
                 setTimeout(() => translateSelectedText(), 50);
+            }
 
-            
             lastTap = 0;
             return;
         }
@@ -542,6 +542,7 @@ window.addEventListener('contextmenu', (e) => {
         e.preventDefault();
     }
 });
+
 
 
 
