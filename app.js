@@ -158,6 +158,7 @@ function renderPage(num) {
         textLayerDiv.style.height = Math.floor(viewport.height) + 'px';
         textLayerDiv.style.width = Math.floor(viewport.width) + 'px';
         textLayerDiv.style.setProperty('--scale-factor', viewport.scale);
+        if (interactionMode === 0) textLayerDiv.style.pointerEvents = 'none'; else textLayerDiv.style.pointerEvents = 'auto';
 
         const transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
 
@@ -447,44 +448,39 @@ window.addEventListener('contextmenu', (e) => {
 
 
 // Lógica para alternar entre Modo Leer y Modo Resaltador a mano alzada
-const toggleModeBtn = document.getElementById('toggle-mode');
+const toolRead = document.getElementById('tool-read');
+const toolHighlight = document.getElementById('tool-highlight');
+const toolErase = document.getElementById('tool-erase');
+const tabletTools = document.getElementById('tablet-tools');
+
 const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-if (!isTouchDevice && toggleModeBtn) {
-    toggleModeBtn.style.display = 'none'; // Ocultar en PC
+if (!isTouchDevice && tabletTools) {
+    tabletTools.style.display = 'none'; // Ocultar barra de dibujo en PC
 }
-let interactionMode = 0; // 0: Leer, 1: Resaltar, 2: Borrar
-let isHighlighting = false;
-let isErasing = false;
-let highlightedSpans = new Set();
 
-if (toggleModeBtn) {
-    toggleModeBtn.textContent = 'Modo: Leer (Mover página)';
-    toggleModeBtn.style.background = '#334155';
-    document.body.classList.remove('highlight-mode');
+function setTool(mode) {
+    interactionMode = mode;
+    const textLayer = document.getElementById('text-layer');
+    
+    if(toolRead) toolRead.style.background = mode === 0 ? 'var(--glow-color)' : 'transparent';
+    if(toolHighlight) toolHighlight.style.background = mode === 1 ? 'var(--glow-color)' : 'transparent';
+    if(toolErase) toolErase.style.background = mode === 2 ? '#ef4444' : 'transparent';
 
-    toggleModeBtn.addEventListener('click', () => {
-        interactionMode = (interactionMode + 1) % 3;
-        const textLayer = document.getElementById('text-layer');
-        
-        if (interactionMode === 0) {
-            toggleModeBtn.textContent = 'Modo: Leer (Mover página)';
-            toggleModeBtn.style.background = '#334155';
-            document.body.classList.remove('highlight-mode');
-            if (textLayer) textLayer.style.pointerEvents = 'none';
-            window.getSelection().removeAllRanges();
-        } else if (interactionMode === 1) {
-            toggleModeBtn.textContent = 'Modo: Resaltador 🖌️';
-            toggleModeBtn.style.background = 'var(--glow-color)';
-            document.body.classList.add('highlight-mode');
-            if (textLayer) textLayer.style.pointerEvents = 'auto';
-        } else if (interactionMode === 2) {
-            toggleModeBtn.textContent = 'Modo: Borrador 🧽';
-            toggleModeBtn.style.background = '#ef4444';
-            document.body.classList.add('highlight-mode');
-            if (textLayer) textLayer.style.pointerEvents = 'auto';
-        }
-    });
+    if (mode === 0) {
+        document.body.classList.remove('highlight-mode');
+        if (textLayer) textLayer.style.pointerEvents = 'none';
+        window.getSelection().removeAllRanges();
+    } else {
+        document.body.classList.add('highlight-mode');
+        if (textLayer) textLayer.style.pointerEvents = 'auto';
+    }
 }
+
+if (toolRead) toolRead.addEventListener('click', () => setTool(0));
+if (toolHighlight) toolHighlight.addEventListener('click', () => setTool(1));
+if (toolErase) toolErase.addEventListener('click', () => setTool(2));
+
+// Al renderizar una página nueva, restauramos el estado del pointerEvents
 
 function processHighlight(x, y) {
     const el = document.elementFromPoint(x, y);
@@ -572,6 +568,7 @@ document.addEventListener('mousemove', (e) => {
 document.addEventListener('mouseup', () => {
     finishHighlight();
 });
+
 
 
 
