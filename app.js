@@ -466,8 +466,8 @@ function setTool(mode) {
     interactionMode = mode;
     const textLayer = document.getElementById('text-layer');
     
-    if(toolRead) toolRead.style.background = mode === 0 ? 'var(--glow-color)' : 'transparent';
-    if(toolHighlight) toolHighlight.style.background = mode === 1 ? 'var(--glow-color)' : 'transparent';
+    if(toolRead) toolRead.style.background = mode === 0 ? '#3b82f6' : 'transparent';
+    if(toolHighlight) toolHighlight.style.background = mode === 1 ? '#3b82f6' : 'transparent';
     if(toolErase) toolErase.style.background = mode === 2 ? '#ef4444' : 'transparent';
 
     if (mode === 0) {
@@ -572,6 +572,7 @@ document.addEventListener('mousemove', (e) => {
 document.addEventListener('mouseup', () => {
     finishHighlight();
 });
+
 
 
 
