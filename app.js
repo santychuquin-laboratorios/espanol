@@ -383,8 +383,20 @@ window.addEventListener('resize', () => {
 });
 
 let lastTap = 0;
+let isTouchInteraction = false;
+
+document.addEventListener('touchstart', () => {
+    isTouchInteraction = true;
+}, {passive: true});
+
+document.addEventListener('mousedown', () => {
+    isTouchInteraction = false;
+}, {passive: true});
+
 let selectionTimeout = null;
 document.addEventListener('selectionchange', () => {
+    if (!isTouchInteraction) return;
+    
     clearTimeout(selectionTimeout);
     selectionTimeout = setTimeout(() => {
         const selection = window.getSelection();
