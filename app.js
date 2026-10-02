@@ -466,9 +466,9 @@ function setTool(mode) {
     interactionMode = mode;
     const textLayer = document.getElementById('text-layer');
     
-    if(toolRead) toolRead.style.backgroundColor = mode === 0 ? '#3b82f6' : 'transparent';
-    if(toolHighlight) toolHighlight.style.backgroundColor = mode === 1 ? '#eab308' : 'transparent'; // Amarillo para resaltar
-    if(toolErase) toolErase.style.backgroundColor = mode === 2 ? '#ef4444' : 'transparent';
+    if (toolRead) toolRead.classList.toggle('active', mode === 0);
+    if (toolHighlight) toolHighlight.classList.toggle('active', mode === 1);
+    if (toolErase) toolErase.classList.toggle('active', mode === 2);
 
     if (mode === 0) {
         document.body.classList.remove('highlight-mode');
@@ -572,6 +572,7 @@ document.addEventListener('mousemove', (e) => {
 document.addEventListener('mouseup', () => {
     finishHighlight();
 });
+
 
 
 
