@@ -292,7 +292,7 @@ async function performTranslation(text) {
         wordTranslation.textContent = "Traduciendo...";
         
         try {
-            const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(textToTranslate)}&langpair=en|es`);
+            const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(textToTranslate)}&langpair=en|es&de=santiago.edu@gmail.com`);
             const data = await response.json();
             
             if (data && data.responseData && data.responseData.translatedText) {
@@ -317,7 +317,7 @@ async function translateSelectedText() {
     const selection = window.getSelection();
     let text = selection.toString().trim();
     text = text.replace(/\s+/g, ' ');
-    if (text.length > 0) {
+    if (text.length > 0 && text !== currentEnglishText) {
         await performTranslation(text);
     }
 }
@@ -529,6 +529,7 @@ function getWordRangeAtTouch(e) {
     wordRange.setEnd(node, end);
     return wordRange;
 }
+
 
 
 
