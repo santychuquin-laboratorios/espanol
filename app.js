@@ -382,6 +382,17 @@ window.addEventListener('resize', () => {
 });
 
 let lastTap = 0;
+let selectionTimeout = null;
+document.addEventListener('selectionchange', () => {
+    clearTimeout(selectionTimeout);
+    selectionTimeout = setTimeout(() => {
+        const selection = window.getSelection();
+        if (selection.toString().trim().length > 0) {
+            translateSelectedText();
+        }
+    }, 600); // 600ms debounce
+});
+
 document.addEventListener('touchend', (e) => {
     if (translationPanel.contains(e.target)) return;
     
@@ -394,7 +405,6 @@ document.addEventListener('touchend', (e) => {
             
             let wordRange = getWordRangeAtTouch(e);
             
-            // Fallback: si falla la matemática exacta, selecciona solo la palabra clickeada aislando espacios
             if (!wordRange) {
                 const textNode = e.target.firstChild;
                 if (textNode && textNode.nodeType === Node.TEXT_NODE) {
@@ -414,7 +424,6 @@ document.addEventListener('touchend', (e) => {
                 selection.addRange(wordRange);
                 setTimeout(() => translateSelectedText(), 50);
             } else {
-                // Último recurso: seleccionar el span entero si todo falla
                 const range = document.createRange();
                 range.selectNodeContents(e.target);
                 const selection = window.getSelection();
@@ -428,14 +437,6 @@ document.addEventListener('touchend', (e) => {
         }
     }
     lastTap = currentTime;
-
-    setTimeout(() => {
-        const selection = window.getSelection();
-        if (selection.toString().trim().length > 0) {
-            translateSelectedText();
-            
-        }
-    }, 300);
 });
 
 function getWordRangeAtTouch(e) {
@@ -511,6 +512,7 @@ function getWordRangeAtTouch(e) {
     wordRange.setEnd(node, end);
     return wordRange;
 }
+
 
 
 
