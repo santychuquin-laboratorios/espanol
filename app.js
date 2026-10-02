@@ -447,7 +447,6 @@ let isHighlighting = false;
 let isErasing = false;
 let highlightedSpans = new Set();
 const toolRead = document.getElementById('tool-read');
-const toolTap = document.getElementById('tool-tap');
 const toolHighlight = document.getElementById('tool-highlight');
 const toolErase = document.getElementById('tool-erase');
 const tabletTools = document.getElementById('tablet-tools');
@@ -464,7 +463,6 @@ function setTool(mode) {
     if (toolRead) toolRead.classList.toggle('active', mode === 0);
     if (toolHighlight) toolHighlight.classList.toggle('active', mode === 1);
     if (toolErase) toolErase.classList.toggle('active', mode === 2);
-    if (toolTap) toolTap.classList.toggle('active', mode === 3);
 
     if (mode === 0) {
         document.body.classList.remove('highlight-mode');
@@ -479,7 +477,6 @@ function setTool(mode) {
 if (toolRead) toolRead.addEventListener('click', () => setTool(0));
 if (toolHighlight) toolHighlight.addEventListener('click', () => setTool(1));
 if (toolErase) toolErase.addEventListener('click', () => setTool(2));
-if (toolTap) toolTap.addEventListener('click', () => setTool(3));
 
 // Al renderizar una página nueva, restauramos el estado del pointerEvents
 
@@ -568,11 +565,7 @@ let tapStartX = 0;
 let tapStartY = 0;
 
 document.addEventListener('touchstart', (e) => {
-    if (interactionMode === 3 && e.target.closest('.textLayer')) {
-        tapStartX = e.touches[0].clientX;
-        tapStartY = e.touches[0].clientY;
-        return;
-    }
+
     
     if (interactionMode === 0) return;
     if (e.target.closest('.textLayer')) {
@@ -589,35 +582,7 @@ document.addEventListener('touchmove', (e) => {
 }, {passive: false});
 
 document.addEventListener('touchend', (e) => {
-    if (interactionMode === 3 && e.target.closest('.textLayer')) {
-        const touch = e.changedTouches[0];
-        const dx = Math.abs(touch.clientX - tapStartX);
-        const dy = Math.abs(touch.clientY - tapStartY);
-        
-        // Si movió el dedo menos de 10px, se considera un "Toque" (Clic)
-        if (dx < 10 && dy < 10) {
-            e.preventDefault();
-            const range = getWordRangeFromPoint(touch.clientX, touch.clientY);
-            
-            let textToTranslate = "";
-            if (range) {
-                const selection = window.getSelection();
-                selection.removeAllRanges();
-                selection.addRange(range);
-                textToTranslate = selection.toString().trim();
-            } else if (e.target.tagName.toLowerCase() === 'span') {
-                textToTranslate = e.target.textContent.trim();
-                const originalBg = e.target.style.backgroundColor;
-                e.target.style.backgroundColor = 'rgba(168, 85, 247, 0.4)';
-                setTimeout(() => e.target.style.backgroundColor = originalBg, 800);
-            }
-            
-            if (textToTranslate) {
-                performTranslation(textToTranslate);
-            }
-        }
-        return;
-    }
+
     finishHighlight();
 });
 
@@ -667,3 +632,4 @@ document.addEventListener('dblclick', (e) => {
         }, 50);
     }
 });
+
