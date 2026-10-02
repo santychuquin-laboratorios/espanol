@@ -210,6 +210,8 @@ body {
 
 /* Mejorar sensibilidad de selecciÃƒÂ³n de la capa de texto */
 .textLayer {
+    -webkit-user-select: text;
+    user-select: text;
     opacity: 1; 
 }
 .textLayer > span { cursor: text; }
@@ -406,6 +408,7 @@ input[type='color']::-webkit-color-swatch {
     box-shadow: 0 0 5px var(--primary);
     transition: background-color 0.1s;
 }
+
 
 
 
