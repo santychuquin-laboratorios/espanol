@@ -377,12 +377,7 @@ if (colorPicker) {
     });
 }
 
-const opacitySlider = document.getElementById('highlight-opacity');
-if (opacitySlider) {
-    opacitySlider.addEventListener('input', (e) => {
-        currentHighlightOpacity = e.target.value;
-        updateHighlightColor();
-    });
+
 }
 
 window.addEventListener('resize', () => {
@@ -656,11 +651,14 @@ document.addEventListener('dblclick', (e) => {
 
 
 
+
+}
+
 const opacitySlider = document.getElementById('highlight-opacity');
 if (opacitySlider) {
     opacitySlider.addEventListener('input', (e) => {
         currentHighlightOpacity = e.target.value;
-        updateHighlightColor();
+        if (typeof updateHighlightColor === 'function') updateHighlightColor();
     });
 }
 
@@ -677,6 +675,7 @@ quickColors.forEach(btn => {
         if (typeof setTool === 'function') setTool(1);
     });
 });
+
 
 
 
