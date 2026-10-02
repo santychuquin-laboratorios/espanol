@@ -654,3 +654,16 @@ document.addEventListener('mouseup', () => {
 
 
 
+
+document.addEventListener('dblclick', (e) => {
+    const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    if (!isTouchDevice && e.target.closest('.textLayer')) {
+        setTimeout(() => {
+            const selection = window.getSelection();
+            const text = selection.toString().trim();
+            if (text) {
+                performTranslation(text);
+            }
+        }, 50);
+    }
+});
