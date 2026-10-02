@@ -1,4 +1,4 @@
-// Configurar la ruta del worker de PDF.js
+﻿// Configurar la ruta del worker de PDF.js
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 const fileInput = document.getElementById('file-input');
@@ -74,11 +74,11 @@ function loadPDFData(arrayBuffer, initialPage = 1) {
             renderPage(pageNum);
         }).catch(err => {
             console.error('Error al cargar PDF:', err);
-            alert('Error al procesar el archivo PDF. Asegúrate de que no esté dañado.');
+            alert('Error al procesar el archivo PDF. AsegÃºrate de que no estÃ© daÃ±ado.');
         });
     } catch (err) {
         console.error('Error al iniciar lectura:', err);
-        alert('Ocurrió un error al intentar leer el archivo.');
+        alert('OcurriÃ³ un error al intentar leer el archivo.');
     }
 }
 
@@ -104,7 +104,7 @@ async function loadLastPDF() {
     }
 }
 
-// Cargar al iniciar la página
+// Cargar al iniciar la pÃ¡gina
 loadLastPDF();
 
 // Escuchar la subida de un archivo nuevo
@@ -113,7 +113,7 @@ fileInput.addEventListener('change', (e) => {
     if (!file) return;
 
     if (!file.type.includes('pdf') && !file.name.toLowerCase().endsWith('.pdf')) {
-        alert('Por favor, sube un archivo PDF válido.');
+        alert('Por favor, sube un archivo PDF vÃ¡lido.');
         return;
     }
 
@@ -130,7 +130,7 @@ fileInput.addEventListener('change', (e) => {
     fileReader.readAsArrayBuffer(file);
 });
 
-// Función para renderizar una página del PDF
+// FunciÃ³n para renderizar una pÃ¡gina del PDF
 function renderPage(num) {
     pageIsRendering = true;
 
@@ -298,12 +298,12 @@ async function performTranslation(text) {
                 let translatedPart = data.responseData.translatedText;
                 if (untranslatedText) {
                     const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                    wordTranslation.innerHTML = esc(translatedPart) + ' <span style="color: #94a3b8; font-style: italic;" title="Texto excede el límite de 500 caracteres gratuitos"> ' + esc(untranslatedText) + '</span>';
+                    wordTranslation.innerHTML = esc(translatedPart) + ' <span style="color: #94a3b8; font-style: italic;" title="Texto excede el lÃ­mite de 500 caracteres gratuitos"> ' + esc(untranslatedText) + '</span>';
                 } else {
                     wordTranslation.textContent = translatedPart;
                 }
             } else {
-                wordTranslation.textContent = "No se encontró traducción.";
+                wordTranslation.textContent = "No se encontrÃ³ traducciÃ³n.";
             }
         } catch (error) {
             console.error("Error al traducir:", error);
@@ -326,7 +326,7 @@ wordOriginal.addEventListener('keydown', (e) => {
         e.preventDefault();
         let text = wordOriginal.textContent.trim();
         text = text.replace(/\s+/g, ' ');
-        if (text.length > 0 && text !== "Selecciona un texto para traducir..." && text !== "Escribe aquí para traducir...") {
+        if (text.length > 0 && text !== "Selecciona un texto para traducir..." && text !== "Escribe aquÃ­ para traducir...") {
             performTranslation(text);
             wordOriginal.blur();
         }
@@ -334,14 +334,14 @@ wordOriginal.addEventListener('keydown', (e) => {
 });
 
 wordOriginal.addEventListener('focus', () => {
-    if (wordOriginal.textContent.trim() === "Selecciona un texto para traducir..." || wordOriginal.textContent.trim() === "Escribe aquí para traducir...") {
+    if (wordOriginal.textContent.trim() === "Selecciona un texto para traducir..." || wordOriginal.textContent.trim() === "Escribe aquÃ­ para traducir...") {
         wordOriginal.textContent = "";
     }
 });
 
 wordOriginal.addEventListener('blur', () => {
     if (wordOriginal.textContent.trim() === "") {
-        wordOriginal.textContent = "Escribe aquí para traducir...";
+        wordOriginal.textContent = "Escribe aquÃ­ para traducir...";
     }
 });
 
@@ -389,19 +389,15 @@ document.addEventListener('touchend', (e) => {
     const tapLength = currentTime - lastTap;
     
     if (tapLength < 500 && tapLength > 0) {
-        // Double tap detected
         if (e.target.tagName.toLowerCase() === 'span' && e.target.closest('.textLayer')) {
-            const range = document.createRange();
-            range.selectNodeContents(e.target);
-            const selection = window.getSelection();
-            selection.removeAllRanges();
-            selection.addRange(range);
-            
-            // Allow the selection to visually update then translate
-            setTimeout(() => {
-                translateSelectedText();
-            }, 50);
-            
+            e.preventDefault(); 
+            const wordRange = getWordRangeAtTouch(e);
+            if (wordRange) {
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(wordRange);
+                setTimeout(() => translateSelectedText(), 50);
+            }
             lastTap = 0;
             return;
         }
@@ -415,3 +411,34 @@ document.addEventListener('touchend', (e) => {
         }
     }, 300);
 });
+
+function getWordRangeAtTouch(e) {
+    const touch = e.changedTouches[0];
+    const x = touch.clientX;
+    const y = touch.clientY;
+    let range;
+    if (document.caretRangeFromPoint) {
+        range = document.caretRangeFromPoint(x, y);
+    } else if (document.caretPositionFromPoint) {
+        const pos = document.caretPositionFromPoint(x, y);
+        if (pos) {
+            range = document.createRange();
+            range.setStart(pos.offsetNode, pos.offset);
+            range.collapse(true);
+        }
+    }
+    if (!range) return null;
+    const node = range.startContainer;
+    if (node.nodeType !== Node.TEXT_NODE) return null;
+    const text = node.nodeValue;
+    let start = range.startOffset;
+    let end = range.startOffset;
+    while (start > 0 && /[a-zA-Z0-9_\u00C0-\u00FF']/.test(text[start - 1])) start--;
+    while (end < text.length && /[a-zA-Z0-9_\u00C0-\u00FF']/.test(text[end])) end++;
+    if (start === end) return null;
+    const wordRange = document.createRange();
+    wordRange.setStart(node, start);
+    wordRange.setEnd(node, end);
+    return wordRange;
+}
+
