@@ -569,20 +569,29 @@ document.addEventListener('touchstart', (e) => {
         const currentTime = new Date().getTime();
         const tapLength = currentTime - lastTapTime;
         
-        if (tapLength < 500 && tapLength > 0) {
+        if (tapLength < 600 && tapLength > 0) {
             // Doble toque detectado
             e.preventDefault();
             const touch = e.touches[0];
             const range = getWordRangeFromPoint(touch.clientX, touch.clientY);
             
+            let textToTranslate = "";
             if (range) {
                 const selection = window.getSelection();
                 selection.removeAllRanges();
                 selection.addRange(range);
-                const text = selection.toString().trim();
-                if (text) {
-                    performTranslation(text);
-                }
+                textToTranslate = selection.toString().trim();
+            } else if (e.target.tagName.toLowerCase() === 'span') {
+                // Fallback: Si el navegador bloquea el caretRange, usamos el texto del span directamente
+                textToTranslate = e.target.textContent.trim();
+                // Destello morado para confirmar que se capturó
+                const originalBg = e.target.style.backgroundColor;
+                e.target.style.backgroundColor = 'rgba(168, 85, 247, 0.4)';
+                setTimeout(() => e.target.style.backgroundColor = originalBg, 800);
+            }
+            
+            if (textToTranslate) {
+                performTranslation(textToTranslate);
             }
         }
         lastTapTime = currentTime;
@@ -619,6 +628,7 @@ document.addEventListener('mousemove', (e) => {
 document.addEventListener('mouseup', () => {
     finishHighlight();
 });
+
 
 
 
