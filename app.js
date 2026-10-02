@@ -454,6 +454,7 @@ if (!isTouchDevice && toggleModeBtn) {
 }
 let isHighlightMode = false;
 let isHighlighting = false;
+let isErasing = false;
 let highlightedSpans = new Set();
 
 if (toggleModeBtn) {
@@ -484,8 +485,13 @@ if (toggleModeBtn) {
 function processHighlight(x, y) {
     const el = document.elementFromPoint(x, y);
     if (el && el.tagName.toLowerCase() === 'span' && el.closest('.textLayer')) {
-        el.classList.add('custom-highlight');
-        highlightedSpans.add(el);
+        if (isErasing) {
+            el.classList.remove('custom-highlight');
+            highlightedSpans.delete(el);
+        } else {
+            el.classList.add('custom-highlight');
+            highlightedSpans.add(el);
+        }
     }
 }
 
@@ -536,7 +542,12 @@ document.addEventListener('touchstart', (e) => {
     if (!isHighlightMode) return;
     if (e.target.closest('.textLayer')) {
         isHighlighting = true;
-        // Ya no limpiamos aquí para permitir múltiples trazos
+        const el = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+        if (el && el.classList.contains('custom-highlight')) {
+            isErasing = true; // Si tocamos una palabra pintada, este trazo será borrador
+        } else {
+            isErasing = false; // Si tocamos en blanco, será resaltador normal
+        }
         processHighlight(e.touches[0].clientX, e.touches[0].clientY);
     }
 }, {passive: false});
@@ -562,6 +573,7 @@ document.addEventListener('mousemove', (e) => {
 document.addEventListener('mouseup', () => {
     finishHighlight();
 });
+
 
 
 
