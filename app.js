@@ -381,8 +381,33 @@ window.addEventListener('resize', () => {
     }
 });
 
+let lastTap = 0;
 document.addEventListener('touchend', (e) => {
     if (translationPanel.contains(e.target)) return;
+    
+    const currentTime = new Date().getTime();
+    const tapLength = currentTime - lastTap;
+    
+    if (tapLength < 500 && tapLength > 0) {
+        // Double tap detected
+        if (e.target.tagName.toLowerCase() === 'span' && e.target.closest('.textLayer')) {
+            const range = document.createRange();
+            range.selectNodeContents(e.target);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            
+            // Allow the selection to visually update then translate
+            setTimeout(() => {
+                translateSelectedText();
+            }, 50);
+            
+            lastTap = 0;
+            return;
+        }
+    }
+    lastTap = currentTime;
+
     setTimeout(() => {
         const selection = window.getSelection();
         if (selection.toString().trim().length > 0) {
