@@ -437,7 +437,23 @@ document.addEventListener('touchend', (e) => {
         }
     }
     lastTap = currentTime;
+
+    setTimeout(() => {
+        const selection = window.getSelection();
+        if (selection.toString().trim().length > 0) {
+            translateSelectedText();
+        }
+    }, 400);
 });
+
+// Hack to prevent Google Tap to Search natively:
+const textLayerDiv = document.getElementById('text-layer');
+textLayerDiv.setAttribute('contenteditable', 'true');
+textLayerDiv.setAttribute('inputmode', 'none');
+textLayerDiv.setAttribute('spellcheck', 'false');
+textLayerDiv.addEventListener('keydown', e => e.preventDefault());
+textLayerDiv.addEventListener('paste', e => e.preventDefault());
+textLayerDiv.addEventListener('cut', e => e.preventDefault());
 
 function getWordRangeAtTouch(e) {
     const touch = e.changedTouches[0];
@@ -512,6 +528,7 @@ function getWordRangeAtTouch(e) {
     wordRange.setEnd(node, end);
     return wordRange;
 }
+
 
 
 
