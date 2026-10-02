@@ -510,13 +510,25 @@ if (toolErase) toolErase.addEventListener('click', () => setTool(2));
 
 function processHighlight(x, y) {
     const el = document.elementFromPoint(x, y);
-    if (el && (el.classList.contains('highlightable-word') || (el.tagName.toLowerCase() === 'span' && el.closest('.textLayer')))) {
+    if (!el) return;
+    
+    let targetEl = null;
+    
+    if (el.classList.contains('highlightable-word')) {
+        targetEl = el;
+    } else if (el.tagName.toLowerCase() === 'span' && el.closest('.textLayer')) {
+        // Evitar resaltar el contenedor padre (toda la fila) si tocamos un espacio en blanco
+        if (el.querySelector('.highlightable-word')) return;
+        targetEl = el;
+    }
+    
+    if (targetEl) {
         if (isErasing) {
-            el.classList.remove('custom-highlight');
-            highlightedSpans.delete(el);
+            targetEl.classList.remove('custom-highlight');
+            highlightedSpans.delete(targetEl);
         } else {
-            el.classList.add('custom-highlight');
-            highlightedSpans.add(el);
+            targetEl.classList.add('custom-highlight');
+            highlightedSpans.add(targetEl);
         }
     }
 }
@@ -679,5 +691,6 @@ quickColors.forEach(btn => {
         setTool(1);
     });
 });
+
 
 
