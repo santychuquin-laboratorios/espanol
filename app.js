@@ -158,7 +158,7 @@ function renderPage(num) {
         textLayerDiv.style.height = Math.floor(viewport.height) + 'px';
         textLayerDiv.style.width = Math.floor(viewport.width) + 'px';
         textLayerDiv.style.setProperty('--scale-factor', viewport.scale);
-        if (interactionMode === 0) textLayerDiv.style.pointerEvents = 'none'; else textLayerDiv.style.pointerEvents = 'auto';
+        if (interactionMode === 0 && isTouchDevice) textLayerDiv.style.pointerEvents = 'none'; else textLayerDiv.style.pointerEvents = 'auto';
 
         const transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
 
@@ -474,7 +474,7 @@ function setTool(mode) {
 
     if (mode === 0) {
         document.body.classList.remove('highlight-mode');
-        if (textLayer) textLayer.style.pointerEvents = 'none';
+        if (textLayer) textLayer.style.pointerEvents = isTouchDevice ? 'none' : 'auto';
         window.getSelection().removeAllRanges();
     } else {
         document.body.classList.add('highlight-mode');
@@ -602,6 +602,7 @@ document.addEventListener('mousemove', (e) => {
 document.addEventListener('mouseup', () => {
     finishHighlight();
 });
+
 
 
 
