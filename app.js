@@ -377,9 +377,6 @@ if (colorPicker) {
     });
 }
 
-
-}
-
 window.addEventListener('resize', () => {
     if (pdfDoc && !pageIsRendering) {
         clearTimeout(window.resizeTimer);
@@ -675,6 +672,7 @@ quickColors.forEach(btn => {
         if (typeof setTool === 'function') setTool(1);
     });
 });
+
 
 
 
