@@ -366,7 +366,7 @@ function updateHighlightColor() {
     const r = parseInt(currentHighlightHex.slice(1, 3), 16);
     const g = parseInt(currentHighlightHex.slice(3, 5), 16);
     const b = parseInt(currentHighlightHex.slice(5, 7), 16);
-    document.documentElement.style.setProperty('--highlight-color', `rgba(${r}, , , )`);
+    document.documentElement.style.setProperty('--highlight-color', `rgba(${r}, ${g}, ${b}, ${currentHighlightOpacity})`);
 }
 
 const colorPicker = document.getElementById('highlight-color');
@@ -675,6 +675,7 @@ quickColors.forEach(btn => {
         if (typeof setTool === 'function') setTool(1);
     });
 });
+
 
 
 
