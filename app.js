@@ -465,6 +465,9 @@ if (!isTouchDevice) {
     if (tabletTools) tabletTools.style.display = 'none';
     const quickColorsDiv = document.getElementById('quick-colors');
     if (quickColorsDiv) quickColorsDiv.style.display = 'none';
+} else {
+    const desktopColors = document.getElementById('desktop-quick-colors');
+    if (desktopColors) desktopColors.style.display = 'none';
 }
 
 function setTool(mode) {
@@ -672,6 +675,7 @@ quickColors.forEach(btn => {
         if (typeof setTool === 'function' && (('ontouchstart' in window) || (navigator.maxTouchPoints > 0))) setTool(1);
     });
 });
+
 
 
 
