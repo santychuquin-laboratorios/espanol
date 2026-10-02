@@ -538,3 +538,4 @@ function getWordRangeAtTouch(e) {
 
 
 
+
