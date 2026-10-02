@@ -420,3 +420,21 @@ input[type='color']::-webkit-color-swatch {
 
 
 
+
+/* Custom Highlight Mode */
+.highlight-mode .textLayer {
+    -webkit-user-select: none !important;
+    user-select: none !important;
+    touch-action: none !important;
+}
+.highlight-mode .textLayer > span {
+    -webkit-user-select: none !important;
+    user-select: none !important;
+    pointer-events: auto !important;
+}
+.custom-highlight {
+    background-color: var(--highlight-color) !important;
+    color: #fff !important;
+    border-radius: 3px;
+    opacity: 0.8;
+}
