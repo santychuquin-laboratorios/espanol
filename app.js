@@ -359,14 +359,31 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+let currentHighlightHex = '#ffeb3b';
+let currentHighlightOpacity = 0.65;
+
+function updateHighlightColor() {
+    const r = parseInt(currentHighlightHex.slice(1, 3), 16);
+    const g = parseInt(currentHighlightHex.slice(3, 5), 16);
+    const b = parseInt(currentHighlightHex.slice(5, 7), 16);
+    document.documentElement.style.setProperty('--highlight-color', `rgba(${r}, , , )`);
+}
+
 const colorPicker = document.getElementById('highlight-color');
-colorPicker.addEventListener('input', (e) => {
-    const hex = e.target.value;
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    document.documentElement.style.setProperty('--highlight-color', `rgba(${r}, ${g}, ${b}, 0.65)`);
-});
+if (colorPicker) {
+    colorPicker.addEventListener('input', (e) => {
+        currentHighlightHex = e.target.value;
+        updateHighlightColor();
+    });
+}
+
+const opacitySlider = document.getElementById('highlight-opacity');
+if (opacitySlider) {
+    opacitySlider.addEventListener('input', (e) => {
+        currentHighlightOpacity = e.target.value;
+        updateHighlightColor();
+    });
+}
 
 window.addEventListener('resize', () => {
     if (pdfDoc && !pageIsRendering) {
@@ -654,12 +671,13 @@ quickColors.forEach(btn => {
         e.target.style.borderColor = 'white';
         
         currentHighlightHex = e.target.getAttribute('data-color');
-        if (colorPicker) colorPicker.value = currentHighlightHex;
-        updateHighlightColor();
+        if (typeof colorPicker !== 'undefined' && colorPicker) colorPicker.value = currentHighlightHex;
+        if (typeof updateHighlightColor === 'function') updateHighlightColor();
         
-        setTool(1);
+        if (typeof setTool === 'function') setTool(1);
     });
 });
+
 
 
 
