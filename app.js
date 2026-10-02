@@ -75,11 +75,11 @@ function loadPDFData(arrayBuffer, initialPage = 1) {
             renderPage(pageNum);
         }).catch(err => {
             console.error('Error al cargar PDF:', err);
-            alert('Error al procesar el archivo PDF. AsegÃƒÂºrate de que no estÃƒÂ© daÃƒÂ±ado.');
+            alert('Error al procesar el archivo PDF. Aseg\u00FArate de que no est\u00E9 da\u00F1ado.');
         });
     } catch (err) {
         console.error('Error al iniciar lectura:', err);
-        alert('OcurriÃƒÂ³ un error al intentar leer el archivo.');
+        alert('Ocurri\u00F3 un error al intentar leer el archivo.');
     }
 }
 
@@ -114,7 +114,7 @@ fileInput.addEventListener('change', (e) => {
     if (!file) return;
 
     if (!file.type.includes('pdf') && !file.name.toLowerCase().endsWith('.pdf')) {
-        alert('Por favor, sube un archivo PDF vÃƒÂ¡lido.');
+        alert('Por favor, sube un archivo PDF v\u00E1lido.');
         return;
     }
 
@@ -299,12 +299,12 @@ async function performTranslation(text) {
                 let translatedPart = data[0].map(item => item[0]).join('');
                 if (untranslatedText) {
                     const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                    wordTranslation.innerHTML = esc(translatedPart) + ' <span style="color: #94a3b8; font-style: italic;" title="Texto excede el lÃ­mite de 500 caracteres gratuitos"> ' + esc(untranslatedText) + '</span>';
+                    wordTranslation.innerHTML = esc(translatedPart) + ' <span style="color: #94a3b8; font-style: italic;" title="Texto excede el l\u00EDmite de 500 caracteres gratuitos"> ' + esc(untranslatedText) + '</span>';
                 } else {
                     wordTranslation.textContent = translatedPart;
                 }
             } else {
-                wordTranslation.textContent = "No se encontrÃ³ traducciÃ³n.";
+                wordTranslation.textContent = "No se encontr\u00F3 traducci\u00F3n.";
             }
         } catch (error) {
             console.error("Error al traducir:", error);
@@ -327,7 +327,7 @@ wordOriginal.addEventListener('keydown', (e) => {
         e.preventDefault();
         let text = wordOriginal.textContent.trim();
         text = text.replace(/\s+/g, ' ');
-        if (text.length > 0 && text !== "Selecciona un texto para traducir..." && text !== "Escribe aquÃƒÂ­ para traducir...") {
+        if (text.length > 0 && text !== "Selecciona un texto para traducir..." && text !== "Escribe aqu\u00ED para traducir...") {
             performTranslation(text);
             wordOriginal.blur();
         }
@@ -335,14 +335,14 @@ wordOriginal.addEventListener('keydown', (e) => {
 });
 
 wordOriginal.addEventListener('focus', () => {
-    if (wordOriginal.textContent.trim() === "Selecciona un texto para traducir..." || wordOriginal.textContent.trim() === "Escribe aquÃƒÂ­ para traducir...") {
+    if (wordOriginal.textContent.trim() === "Selecciona un texto para traducir..." || wordOriginal.textContent.trim() === "Escribe aqu\u00ED para traducir...") {
         wordOriginal.textContent = "";
     }
 });
 
 wordOriginal.addEventListener('blur', () => {
     if (wordOriginal.textContent.trim() === "") {
-        wordOriginal.textContent = "Escribe aquÃƒÂ­ para traducir...";
+        wordOriginal.textContent = "Escribe aqu\u00ED para traducir...";
     }
 });
 
@@ -539,6 +539,7 @@ document.addEventListener('mousemove', (e) => {
 document.addEventListener('mouseup', () => {
     finishHighlight();
 });
+
 
 
 
