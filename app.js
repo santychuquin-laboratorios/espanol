@@ -545,3 +545,10 @@ function getWordRangeAtTouch(e) {
 
 
 
+
+window.addEventListener('contextmenu', (e) => {
+    if (isTouchInteraction) {
+        e.preventDefault();
+    }
+});
+
