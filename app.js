@@ -347,13 +347,7 @@ wordOriginal.addEventListener('blur', () => {
     }
 });
 
-document.addEventListener('dblclick', (e) => {
-    if (translationPanel.contains(e.target)) return;
-    const selection = window.getSelection();
-    if (selection.toString().trim().length > 0) {
-        translateSelectedText();
-    }
-});
+
 
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
@@ -545,7 +539,55 @@ if (btnClearHighlight) {
 }
 
 // Eventos Táctiles (Tablet)
+let lastTapTime = 0;
+
+function getWordRangeFromPoint(x, y) {
+    if (!document.caretRangeFromPoint) return null;
+    const range = document.caretRangeFromPoint(x, y);
+    if (!range || range.startContainer.nodeType !== Node.TEXT_NODE) return null;
+    
+    const node = range.startContainer;
+    const offset = range.startOffset;
+    const text = node.nodeValue;
+    
+    let start = offset;
+    while (start > 0 && /\w|[\u00C0-\u00FF']/.test(text[start - 1])) start--;
+    let end = offset;
+    while (end < text.length && /\w|[\u00C0-\u00FF']/.test(text[end])) end++;
+    
+    if (start < end) {
+        const wordRange = document.createRange();
+        wordRange.setStart(node, start);
+        wordRange.setEnd(node, end);
+        return wordRange;
+    }
+    return null;
+}
+
 document.addEventListener('touchstart', (e) => {
+    if (interactionMode === 3 && e.target.closest('.textLayer')) {
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastTapTime;
+        
+        if (tapLength < 500 && tapLength > 0) {
+            // Doble toque detectado
+            e.preventDefault();
+            const touch = e.touches[0];
+            const range = getWordRangeFromPoint(touch.clientX, touch.clientY);
+            
+            if (range) {
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+                const text = selection.toString().trim();
+                if (text) {
+                    performTranslation(text);
+                }
+            }
+        }
+        lastTapTime = currentTime;
+        return; // Salir para no mezclar con otros modos
+    }
     if (interactionMode === 0) return;
     
 
@@ -594,14 +636,5 @@ document.addEventListener('mouseup', () => {
 
 
 
-document.addEventListener('dblclick', (e) => {
-    if (interactionMode === 3 && e.target.closest('.textLayer')) {
-        setTimeout(() => {
-            const selection = window.getSelection();
-            const text = selection.toString().trim();
-            if (text) {
-                performTranslation(text);
-            }
-        }, 100); // Dar un respiro para que el navegador seleccione la palabra
-    }
-});
+
+
