@@ -29,9 +29,16 @@
         </div>
 
         <div class="nav-actions">
-            <!-- Selector de color de subrayado -->
-            <div class="color-picker-container" title="Elegir color de subrayado">
-                <input type="color" id="highlight-color" value="#ffeb3b">
+            <div style="display: flex; align-items: center; gap: 15px; background: rgba(15, 23, 42, 0.4); padding: 5px 15px; border-radius: 20px; border: 1px solid var(--border);">
+                <!-- Selector de color de subrayado -->
+                <div class="color-picker-container" title="Elegir color libre">
+                    <input type="color" id="highlight-color" value="#ffeb3b" style="cursor: pointer;">
+                </div>
+                <!-- Selector de intensidad (Opacidad) -->
+                <div class="opacity-slider-container" title="Fuerza de la tinta" style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">Tinta:</span>
+                    <input type="range" id="highlight-opacity" min="0.1" max="1.0" step="0.05" value="0.65" style="width: 70px; cursor: pointer;">
+                </div>
             </div>
             
             <label class="btn-primary" style="cursor: pointer; display: inline-block; text-align: center; padding: 10px 20px; border-radius: 6px;">
@@ -113,9 +120,10 @@
         </div>
     </div>
 
-    <script src="app.js?v=30"></script>
+    <script src="app.js?v=35"></script>
 </body>
 </html>
+
 
 
 
